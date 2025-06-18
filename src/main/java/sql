@@ -1,0 +1,52 @@
+CREATE TABLE roles (
+    role_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    role_name VARCHAR(20) NOT NULL UNIQUE
+);
+
+-- Users table
+CREATE TABLE users (
+    user_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password_hash VARCHAR(100) NOT NULL,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    phone VARCHAR(20),
+    role_id INT NOT NULL REFERENCES roles(role_id),
+    status VARCHAR(20) DEFAULT 'ACTIVE',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_login TIMESTAMP
+);
+
+-- Password reset tokens
+CREATE TABLE password_reset_tokens (
+    token_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    user_id INT NOT NULL REFERENCES users(user_id),
+    token VARCHAR(64) NOT NULL,
+    expiry_time TIMESTAMP NOT NULL,
+    used BOOLEAN DEFAULT false
+);
+
+-- Audit log
+CREATE TABLE audit_log (
+    log_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    user_id INT REFERENCES users(user_id),
+    action_type VARCHAR(50) NOT NULL,
+    resource_type VARCHAR(50),
+    resource_id INT,
+    ip_address VARCHAR(45),
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    details VARCHAR(500)
+);
+
+-- Insert default roles
+INSERT INTO roles (role_name) VALUES ('ADMIN');
+INSERT INTO roles (role_name) VALUES ('ELECTION_OFFICER');
+INSERT INTO roles (role_name) VALUES ('VOTER');
+
+-- Create admin user (password: admin123)
+INSERT INTO users (username, email, password_hash, first_name, last_name, role_id)
+VALUES ('admin', 'admin@voting.com', '$2a$10$N9qo8uLOickgx2ZMRZoMy.MQDq4wXGZ.5vJ1LeY4FQO8sYQVgDqGq', 'System', 'Administrator', 1);
+
+ALTER TABLE users ADD COLUMN remember_token VARCHAR(64);
+ALTER TABLE users ADD COLUMN token_expiry TIMESTAMP;

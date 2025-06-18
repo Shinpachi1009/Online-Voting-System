@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee 
+         http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+         version="4.0">
+    
+    <display-name>Online Voting System</display-name>
+    
+    <welcome-file-list>
+        <welcome-file>login.jsp</welcome-file>
+    </welcome-file-list>
+    
+    <!-- Error pages -->
+    <error-page>
+        <error-code>404</error-code>
+        <location>/error404.jsp</location>
+    </error-page>
+    <error-page>
+        <error-code>500</error-code>
+        <location>/error500.jsp</location>
+    </error-page>
+    <error-page>
+        <exception-type>java.lang.Exception</exception-type>
+        <location>/error500.jsp</location>
+    </error-page>
+    
+    <!-- Session configuration -->
+    <session-config>
+        <session-timeout>30</session-timeout>
+        <cookie-config>
+            <http-only>true</http-only>
+            <secure>true</secure>
+        </cookie-config>
+    </session-config>
+    
+    <!-- Security constraints for Admin -->
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Admin Pages</web-resource-name>
+            <url-pattern>/admin/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>ADMIN</role-name>
+        </auth-constraint>
+    </security-constraint>
+    
+    <!-- Security constraints for Officer -->
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Officer Pages</web-resource-name>
+            <url-pattern>/officer/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>ELECTION_OFFICER</role-name>
+        </auth-constraint>
+    </security-constraint>
+    
+    <!-- Security constraints for Voter -->
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Voter Pages</web-resource-name>
+            <url-pattern>/voter/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>VOTER</role-name>
+        </auth-constraint>
+    </security-constraint>
+    
+    <!-- Login configuration -->
+    <login-config>
+        <auth-method>FORM</auth-method>
+        <form-login-config>
+            <form-login-page>/login.jsp</form-login-page>
+            <form-error-page>/login.jsp?error=true</form-error-page>
+        </form-login-config>
+    </login-config>
+    
+    <!-- Security roles -->
+    <security-role>
+        <role-name>ADMIN</role-name>
+    </security-role>
+    <security-role>
+        <role-name>ELECTION_OFFICER</role-name>
+    </security-role>
+    <security-role>
+        <role-name>VOTER</role-name>
+    </security-role>
+	<security-constraint>
+	    <web-resource-collection>
+	        <web-resource-name>Admin Pages</web-resource-name>
+	        <url-pattern>/admin/*</url-pattern>
+	        <http-method>GET</http-method>
+	        <http-method>POST</http-method>
+	    </web-resource-collection>
+	    <auth-constraint>
+	        <role-name>ADMIN</role-name>
+	    </auth-constraint>
+	</security-constraint>
+</web-app>
