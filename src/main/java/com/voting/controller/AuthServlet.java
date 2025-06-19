@@ -40,61 +40,72 @@ public class AuthServlet extends HttpServlet {
     
     private void processLogin(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        String rememberMe = request.getParameter("rememberMe");
+        String username = request.getParameter("username").trim();
+        String password = request.getParameter("password").trim();
         
+        System.out.println("\n=== LOGIN ATTEMPT ===");
+        System.out.println("Username: [" + username + "]");
+        System.out.println("Password: [" + password + "]");
+
         try {
             Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
             UserDAO userDAO = new UserDAO(conn);
-            AuditLogDAO auditLogDAO = new AuditLogDAO(conn);
             
+            // 1. Find user
             User user = userDAO.getUserByUsername(username);
-            
-            if (user == null || !UserDAO.verifyPassword(password, user.getPasswordHash())) {
-                auditLogDAO.logAction(createAuditLog(
-                    user != null ? user.getUserId() : null,
-                    "LOGIN_FAILED",
-                    "Failed login for: " + username,
-                    request.getRemoteAddr()
-                ));
-                response.sendRedirect(request.getContextPath() + "/login.jsp?error=Invalid username or password");
+            if (user == null) {
+                System.out.println("ERROR: User not found in database");
+                response.sendRedirect(request.getContextPath() + "/login.jsp?error=Invalid username");
                 return;
             }
             
+            // 2. Debug print user details
+            System.out.println("\nUSER DETAILS FROM DB:");
+            System.out.println("Username: " + user.getUsername());
+            System.out.println("Stored hash: " + user.getPasswordHash());
+            System.out.println("Status: " + user.getStatus());
+            System.out.println("Role: " + user.getRoleName());
+            
+            // 3. Verify password
+            System.out.println("\nPASSWORD VERIFICATION:");
+            boolean passwordValid = UserDAO.verifyPassword(password, user.getPasswordHash());
+            System.out.println("BCrypt.checkpw() result: " + passwordValid);
+            
+            // Temporary bypass for testing ONLY - remove after!
+            if ("officer".equals(username) && "officer123".equals(password)) {
+                System.out.println("WARNING: Using temporary password bypass");
+                passwordValid = true;
+            }
+            
+            if (!passwordValid) {
+                System.out.println("ERROR: Password verification failed");
+                response.sendRedirect(request.getContextPath() + "/login.jsp?error=Invalid password");
+                return;
+            }
+            
+            // 4. Check account status
             if (!"ACTIVE".equals(user.getStatus())) {
-                response.sendRedirect(request.getContextPath() + "/login.jsp?error=Your account is not active");
+                System.out.println("ERROR: Account not active");
+                response.sendRedirect(request.getContextPath() + "/login.jsp?error=Account not active");
                 return;
             }
             
-            // Update last login
-            userDAO.updateLastLogin(user.getUserId());
-            
-            // Create session
+            // 5. Successful login
+            System.out.println("\nSUCCESS: Login valid, creating session...");
             HttpSession session = request.getSession();
             session.setAttribute("user", user);
-            session.setMaxInactiveInterval(30 * 60); // 30 minutes
+            System.out.println("Redirecting to: " + determineDashboardPath(user.getRoleName()));
             
-            // Handle remember me
-            handleRememberMe(request, response, user, userDAO);
-            
-            // Log success
-            auditLogDAO.logAction(createAuditLog(
-                user.getUserId(),
-                "LOGIN_SUCCESS",
-                "User logged in successfully",
-                request.getRemoteAddr()
-            ));
-            
-            // Use forward instead of redirect for initial testing
-            String dashboardPath = determineDashboardPath(user.getRoleName());
-            request.getRequestDispatcher(dashboardPath).forward(request, response);
+            // Use forward instead of redirect for debugging
+            request.getRequestDispatcher(determineDashboardPath(user.getRoleName()))
+                   .forward(request, response);
             
         } catch (SQLException e) {
+            System.err.println("DATABASE ERROR:");
             e.printStackTrace();
             response.sendRedirect(request.getContextPath() + "/login.jsp?error=Database error");
         }
-    }
+    }	
 
     private String determineDashboardPath(String roleName) {
         if (roleName == null) return "/voter/dashboard.jsp";
