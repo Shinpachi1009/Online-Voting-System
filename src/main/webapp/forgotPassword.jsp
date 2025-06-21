@@ -24,7 +24,7 @@
                 <div class="alert alert-success">${param.message}</div>
             </c:if>
             
-            <form action="password-reset" method="post">
+            <form action="password-reset" method="post" id="forgotForm">
                 <input type="hidden" name="action" value="request">
                 
                 <div class="form-group">
@@ -41,5 +41,24 @@
             </div>
         </div>
     </div>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#forgotForm').submit(function(e) {
+                const email = $('#email').val();
+                
+                // Simple email validation
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    e.preventDefault();
+                    alert('Please enter a valid email address.');
+                    return false;
+                }
+                
+                return true;
+            });
+        });
+    </script>
 </body>
 </html>

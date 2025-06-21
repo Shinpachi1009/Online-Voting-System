@@ -20,7 +20,7 @@
                 <div class="alert alert-danger">${param.error}</div>
             </c:if>
             
-            <form action="password-reset" method="post">
+            <form action="password-reset" method="post" id="resetForm">
                 <input type="hidden" name="action" value="reset">
                 <input type="hidden" name="token" value="${param.token}">
                 
@@ -40,28 +40,30 @@
         </div>
     </div>
     
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script>
-        // Client-side password validation
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const password = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            // Check if passwords match
-            if (password !== confirmPassword) {
-                e.preventDefault();
-                alert('Passwords do not match!');
-                return false;
-            }
-            
-            // Check password complexity
-            const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/;
-            if (!passwordRegex.test(password)) {
-                e.preventDefault();
-                alert('Password must be at least 8 characters long and contain at least one number and one special character.');
-                return false;
-            }
-            
-            return true;
+        $(document).ready(function() {
+            $('#resetForm').submit(function(e) {
+                const password = $('#newPassword').val();
+                const confirmPassword = $('#confirmPassword').val();
+                
+                // Check if passwords match
+                if (password !== confirmPassword) {
+                    e.preventDefault();
+                    alert('Passwords do not match!');
+                    return false;
+                }
+                
+                // Check password complexity
+                const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,}$/;
+                if (!passwordRegex.test(password)) {
+                    e.preventDefault();
+                    alert('Password must be at least 8 characters long and contain at least one number and one special character.');
+                    return false;
+                }
+                
+                return true;
+            });
         });
     </script>
 </body>

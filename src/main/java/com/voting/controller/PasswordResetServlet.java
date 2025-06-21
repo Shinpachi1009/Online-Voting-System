@@ -9,6 +9,9 @@ import com.voting.model.User;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Properties;
+import javax.mail.*;
+import javax.mail.internet.*;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -19,12 +22,17 @@ import javax.servlet.http.HttpServletResponse;
 public class PasswordResetServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     
+    // Email configuration - should be in config file in real application
+    private static final String SMTP_HOST = "smtp.gmail.com";
+    private static final String SMTP_PORT = "587";
+    private static final String EMAIL_USERNAME = "yourvotingsystem@gmail.com";
+    private static final String EMAIL_PASSWORD = "yourpassword"; // Use app-specific password
+    
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         String token = request.getParameter("token");
         
         if (token != null) {
-            // Show password reset form
             try {
                 Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
                 PasswordResetTokenDAO tokenDAO = new PasswordResetTokenDAO(conn);
@@ -70,12 +78,15 @@ public class PasswordResetServlet extends HttpServlet {
             User user = userDAO.getUserByEmail(email);
             
             if (user != null) {
-                // Generate token and send email (in a real app, you would send an email here)
+                // Generate token
                 String token = tokenDAO.createToken(user.getUserId());
                 
-                // In a real application, you would send an email with the reset link
-                String resetLink = request.getRequestURL().toString() + "?token=" + token;
-                System.out.println("Password reset link for " + user.getEmail() + ": " + resetLink);
+                // Create reset link
+                String appUrl = request.getRequestURL().toString().replace(request.getServletPath(), "");
+                String resetLink = appUrl + "/resetPassword.jsp?token=" + token;
+                
+                // Send email
+                sendPasswordResetEmail(user.getEmail(), resetLink);
                 
                 // Log password reset request
                 AuditLog auditLog = new AuditLog();
@@ -93,7 +104,44 @@ public class PasswordResetServlet extends HttpServlet {
         } catch (SQLException e) {
             e.printStackTrace();
             response.sendRedirect("forgotPassword.jsp?error=Database error");
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            response.sendRedirect("forgotPassword.jsp?error=Failed to send email");
         }
+    }
+    
+    private void sendPasswordResetEmail(String recipientEmail, String resetLink) throws MessagingException {
+        // Email properties
+        Properties props = new Properties();
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.host", SMTP_HOST);
+        props.put("mail.smtp.port", SMTP_PORT);
+        
+        // Create session
+        Session session = Session.getInstance(props, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(EMAIL_USERNAME, EMAIL_PASSWORD);
+            }
+        });
+        
+        // Create email
+        Message message = new MimeMessage(session);
+        message.setFrom(new InternetAddress(EMAIL_USERNAME));
+        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipientEmail));
+        message.setSubject("Password Reset Request - Online Voting System");
+        
+        String content = "<h3>Password Reset Request</h3>"
+                + "<p>You requested to reset your password. Please click the link below to set a new password:</p>"
+                + "<p><a href=\"" + resetLink + "\">Reset Password</a></p>"
+                + "<p>If you didn't request this, please ignore this email.</p>"
+                + "<p>This link will expire in 24 hours.</p>";
+        
+        message.setContent(content, "text/html");
+        
+        // Send email
+        Transport.send(message);
     }
     
     private void processPasswordReset(HttpServletRequest request, HttpServletResponse response) 
