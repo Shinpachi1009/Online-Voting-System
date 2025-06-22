@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/password-toggle.css">
 </head>
@@ -17,27 +19,18 @@
         <div class="form-container">
             <h2 class="text-center mb-4">Online Voting System</h2>
             
-            <c:if test="${not empty param.error}">
-                <div class="alert alert-danger">${param.error}</div>
-            </c:if>
-            
-            <c:if test="${not empty param.message}">
-                <div class="alert alert-success">${param.message}</div>
-            </c:if>
-            
             <form id="loginForm" action="${pageContext.request.contextPath}/auth" method="post">
                 <input type="hidden" name="action" value="login">
                 
                 <div class="form-group">
                     <label for="username">Username</label>
-                    <input type="text" class="form-control" id="username" name="username" required>
+                    <input type="text" class="form-control" id="username" name="username">
                 </div>
                 
                 <div class="form-group password-toggle">
                     <label for="password">Password</label>
-                    <input type="password" class="form-control" id="password" name="password" required>
+                    <input type="password" class="form-control" id="password" name="password">
                     <span class="toggle-password" onclick="togglePassword('password')">
-                        <i class="fa fa-eye"></i>
                     </span>
                 </div>
                 
@@ -63,7 +56,91 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Custom JS -->
     <script src="${pageContext.request.contextPath}/js/password-toggle.js"></script>
+    
+    <script>
+    // Function to validate login form
+    function validateLoginForm() {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+        
+        // Scene 1: Empty fields validation
+        if (!username || !password) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Missing Information',
+                text: 'Please fill in both username and password fields',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'OK'
+            });
+            return false;
+        }
+        
+        // Show confirmation dialog before submitting
+        return Swal.fire({
+            title: 'Confirm Login',
+            text: 'Are you ready to sign in to your account?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, login!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show loading indicator
+                Swal.fire({
+                    title: 'Logging in...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                return true;
+            }
+            return false;
+        });
+    }
+    
+    // Attach validation to form submission
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        validateLoginForm().then((shouldSubmit) => {
+            if (shouldSubmit) {
+                this.submit();
+            }
+        });
+    });
+    
+    // Show any server-side errors/messages
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        const message = urlParams.get('message');
+        
+        if (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Login Failed',
+                text: error,
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'OK'
+            });
+        }
+        
+        if (message) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: message,
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+    </script>
 </body>
 </html>
