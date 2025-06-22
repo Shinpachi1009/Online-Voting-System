@@ -51,7 +51,6 @@
                     <label for="password">Password</label>
                     <input type="password" class="form-control" id="password" name="password" required>
                     <span class="toggle-password" onclick="togglePassword('password')">
-                        <i class="fa fa-eye"></i>
                     </span>
                     <small class="form-text text-muted">Password must be at least 8 characters long and contain at least one number and one special character.</small>
                 </div>

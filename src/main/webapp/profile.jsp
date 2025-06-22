@@ -84,7 +84,6 @@
                                 <label for="currentPassword">Current Password</label>
                                 <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
                                 <span class="toggle-password" onclick="togglePassword('currentPassword')">
-                                    <i class="fa fa-eye"></i>
                                 </span>
                             </div>
                             
@@ -92,7 +91,6 @@
                                 <label for="newPassword">New Password</label>
                                 <input type="password" class="form-control" id="newPassword" name="newPassword" required>
                                 <span class="toggle-password" onclick="togglePassword('newPassword')">
-                                    <i class="fa fa-eye"></i>
                                 </span>
                                 <small class="text-muted">Must be at least 8 characters with 1 number and 1 special character</small>
                             </div>
@@ -101,7 +99,6 @@
                                 <label for="confirmPassword">Confirm New Password</label>
                                 <input type="password" class="form-control" id="confirmPassword" name="confirmNewPassword" required>
                                 <span class="toggle-password" onclick="togglePassword('confirmPassword')">
-                                    <i class="fa fa-eye"></i>
                                 </span>
                             </div>
                             
