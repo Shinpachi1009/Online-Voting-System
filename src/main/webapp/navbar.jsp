@@ -32,31 +32,28 @@
         text-decoration: none;
     }
 </style>
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-		        <!-- Logo and Brand Name -->
+        <!-- Logo and Brand Name -->
         <a class="navbar-brand" href="${pageContext.request.contextPath}/dashboard.jsp">
             <img src="${pageContext.request.contextPath}/images/logo.png" 
                  alt="Online Voting System Logo">
             Online Voting System
         </a>
+        
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
+        
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="dashboard.jsp">Dashboard</a>
+                    <a class="nav-link" href="${pageContext.request.contextPath}/voter/dashboard.jsp">Dashboard</a>
                 </li>
-                <!-- Add this new menu item -->
-                <c:if test="${user.roleName == 'VOTER'}">
-                    <li class="nav-item">
-                        <a class="nav-link" href="${pageContext.request.contextPath}/voter-registration">Voter Registration</a>
-                    </li>
-                </c:if>
                 <c:if test="${user.roleName == 'ADMIN' || user.roleName == 'ELECTION_OFFICER'}">
                     <li class="nav-item">
-                        <a class="nav-link" href="admin/dashboard.jsp">Admin Panel</a>
+                        <a class="nav-link" href="${pageContext.request.contextPath}/admin/dashboard.jsp">Admin Panel</a>
                     </li>
                 </c:if>
             </ul>
@@ -66,9 +63,9 @@
                         <c:out value="${user.firstName} ${user.lastName}" /> (${user.roleName})
                     </a>
                     <div class="dropdown-menu dropdown-menu-right">
-                        <a class="dropdown-item" href="user?action=profile">My Profile</a>
+                        <a class="dropdown-item" href="${pageContext.request.contextPath}/user?action=profile">My Profile</a>
                         <div class="dropdown-divider"></div>
-                        <form action="auth" method="post" class="dropdown-item">
+                        <form action="${pageContext.request.contextPath}/auth" method="post" class="dropdown-item">
                             <input type="hidden" name="action" value="logout">
                             <button type="submit" class="btn btn-link p-0">Logout</button>
                         </form>
