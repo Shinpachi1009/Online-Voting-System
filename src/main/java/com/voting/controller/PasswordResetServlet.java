@@ -34,7 +34,7 @@ public class PasswordResetServlet extends HttpServlet {
         
         if (token != null) {
             try {
-                Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
+                Connection conn = (Connection) getServletContext().getAttribute("VOTING");
                 PasswordResetTokenDAO tokenDAO = new PasswordResetTokenDAO(conn);
                 
                 if (tokenDAO.validateToken(token) != null) {
@@ -70,7 +70,7 @@ public class PasswordResetServlet extends HttpServlet {
         String email = request.getParameter("email");
         
         try {
-            Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
+            Connection conn = (Connection) getServletContext().getAttribute("VOTING");
             UserDAO userDAO = new UserDAO(conn);
             PasswordResetTokenDAO tokenDAO = new PasswordResetTokenDAO(conn);
             AuditLogDAO auditLogDAO = new AuditLogDAO(conn);
@@ -150,7 +150,7 @@ public class PasswordResetServlet extends HttpServlet {
         String newPassword = request.getParameter("newPassword");
         
         try {
-            Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
+            Connection conn = (Connection) getServletContext().getAttribute("VOTING");
             PasswordResetTokenDAO tokenDAO = new PasswordResetTokenDAO(conn);
             UserDAO userDAO = new UserDAO(conn);
             AuditLogDAO auditLogDAO = new AuditLogDAO(conn);
