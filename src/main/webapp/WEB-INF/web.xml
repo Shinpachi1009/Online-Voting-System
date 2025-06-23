@@ -34,6 +34,11 @@
         </cookie-config>
     </session-config>
     
+    <context-param>
+	    <param-name>file-upload</param-name>
+	    <param-value>/uploads</param-value>
+	</context-param>
+    
     <!-- Security constraints for Admin -->
     <security-constraint>
         <web-resource-collection>
