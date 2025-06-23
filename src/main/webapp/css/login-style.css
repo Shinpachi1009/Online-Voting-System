@@ -1,0 +1,250 @@
+@charset "UTF-8";
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #b30000 0%, #ffcc00 100%);
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #333;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 450px;
+    padding: 20px;
+}
+
+body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) {
+    overflow-y: hidden !important;
+}
+
+.login-container {
+    position: relative;
+    z-index: 1;
+}
+
+html, body {
+    height: 100%;
+    overflow-x: hidden;
+}
+
+.login-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    transition: all 0.3s ease;
+}
+
+.login-card:hover {
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.login-card.invalid {
+    border: 2px solid #ff4444;
+    box-shadow: 0 0 0 2px rgba(255, 68, 68, 0.2);
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+
+.form-control.is-invalid {
+    border-color: #ff4444;
+}
+
+.is-invalid~.invalid-feedback {
+    display: block;
+    color: #ff4444;
+    font-size: 13px;
+    margin-top: 5px;
+}
+
+.logo-container {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logo {
+    width: 80px;
+    height: auto;
+    margin-bottom: 15px;
+}
+
+.logo-container h2 {
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 10px 0 0;
+}
+
+.login-form .form-group {
+    margin-bottom: 20px;
+}
+
+.login-form label {
+    font-weight: 500;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.login-form .form-control {
+    height: 45px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    padding-left: 15px;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.login-form .form-control:focus {
+    border-color: #009900;
+    box-shadow: 0 0 0 0.2rem rgba(0, 153, 0, 0.25);
+}
+
+.password-group {
+    position: relative;
+}
+
+.input-with-icon {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #777;
+    z-index: 2;
+}
+
+.toggle-password:hover {
+    color: #333;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    margin: 15px 0 20px 0;
+    padding-left: 20px;
+}
+
+.remember-me .form-check-input {
+    margin-right: 10px;
+    margin-top: 0;
+}
+
+.remember-me .form-check-label {
+    margin-bottom: 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.remember-me .form-check-label {
+    margin-bottom: 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #555;
+}
+
+.btn-login {
+    background: linear-gradient(to right, #b30000, #ffcc00 );
+    border: none;
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transition: all 0.3s;
+    margin-bottom: 20px;
+}
+
+.btn-login:hover {
+    background: linear-gradient(to right, #ffcc00, #b30000);
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(179, 0, 0, 0.4);
+}
+
+.form-footer {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.forgot-password {
+    margin-bottom: 15px;
+}
+
+.forgot-password a, .register-link a {
+    color: #b30000;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.forgot-password a:hover, .register-link a:hover {
+    color: #b30000;
+    text-decoration: underline;
+}
+
+.register-link {
+    font-size: 14px;
+    color: #666;
+}
+
+@media (max-width: 576px) {
+    .login-card {
+        padding: 30px 20px;
+    }
+    
+    .logo {
+        width: 70px;
+    }
+}
+
+body.swal2-shown {
+    padding-right: 0 !important;
+    overflow: hidden;
+}
+
+.login-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    max-width: 450px;
+    padding: 20px;
+    z-index: 1;
+}
+
+.swal2-container {
+    z-index: 1060;
+}
+
+@media (max-width: 576px) {
+    .login-container {
+        position: absolute;
+        top: auto;
+        transform: translate(-50%, 0);
+        margin-top: 20px;
+    }
+}
