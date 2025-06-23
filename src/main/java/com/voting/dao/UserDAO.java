@@ -187,21 +187,15 @@ public class UserDAO {
         return BCrypt.checkpw(plainPassword, hashedPassword);
     }
     
-    public boolean storeRememberMeToken(int userId, String token) throws SQLException {
-        String sql = "UPDATE users SET remember_token = ?, token_expiry = ? WHERE user_id = ?";
-        
-        // Set expiry to 30 days from now
-        Timestamp expiry = new Timestamp(System.currentTimeMillis() + (30L * 24 * 60 * 60 * 1000));
+    public void storeRememberMeToken(int userId, String token) throws SQLException {
+        String sql = "UPDATE users SET remember_token = ? WHERE user_id = ?";
         
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, token);
-            stmt.setTimestamp(2, expiry);
-            stmt.setInt(3, userId);
-            
-            return stmt.executeUpdate() > 0;
+            stmt.setInt(2, userId);
+            stmt.executeUpdate();
         }
     }
-    
     // Get user by remember token
     public User getUserByRememberToken(String token) throws SQLException {
         String sql = "SELECT u.*, r.role_name FROM users u JOIN roles r ON u.role_id = r.role_id " +
@@ -221,11 +215,29 @@ public class UserDAO {
     
     // Clear remember token from database
     public void clearRememberToken(int userId) throws SQLException {
-        String sql = "UPDATE users SET remember_token = NULL, token_expiry = NULL WHERE user_id = ?";
+        String sql = "UPDATE users SET remember_token = NULL WHERE user_id = ?";
         
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, userId);
             stmt.executeUpdate();
         }
+    }
+    
+    public User validateRememberMeToken(int userId, String token) throws SQLException {
+        String sql = "SELECT u.*, r.role_name FROM users u " +
+                     "JOIN roles r ON u.role_id = r.role_id " +
+                     "WHERE u.user_id = ? AND u.remember_token = ? AND u.status = 'ACTIVE'";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            stmt.setString(2, token);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapUserFromResultSet(rs);
+                }
+            }
+        }
+        return null;
     }
 }

@@ -50,3 +50,32 @@ VALUES ('admin', 'admin@voting.com', '$2a$10$N9qo8uLOickgx2ZMRZoMy.MQDq4wXGZ.5vJ
 
 ALTER TABLE users ADD COLUMN remember_token VARCHAR(64);
 ALTER TABLE users ADD COLUMN token_expiry TIMESTAMP;
+
+ALTER TABLE users ADD COLUMN remember_token VARCHAR(64);
+
+-- Voters table
+CREATE TABLE voters (
+    voter_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    user_id INT NOT NULL REFERENCES users(user_id),
+    voter_id_number VARCHAR(20) NOT NULL UNIQUE,
+    date_of_birth DATE NOT NULL,
+    address VARCHAR(200) NOT NULL,
+    district VARCHAR(100) NOT NULL,
+    registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(20) DEFAULT 'PENDING',
+    approved_by INT REFERENCES users(user_id),
+    approval_date TIMESTAMP,
+    document_path VARCHAR(255)
+);
+
+-- Verification statuses: PENDING, APPROVED, REJECTED, INACTIVE
+
+-- Voter audit log
+CREATE TABLE voter_audit (
+    audit_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    voter_id INT NOT NULL REFERENCES voters(voter_id),
+    changed_by INT REFERENCES users(user_id),
+    change_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    previous_status VARCHAR(20),
+    new_status VARCHAR(20),
+    n

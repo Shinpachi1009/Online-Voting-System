@@ -8,11 +8,15 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- Font Awesome -->
+<<<<<<< Updated upstream
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+=======
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+>>>>>>> Stashed changes
     <!-- Custom CSS -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/login-style.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/password-toggle.css">
@@ -25,6 +29,7 @@
                 <h2 class="text-center mb-4">Online Voting System</h2>
             </div>
             
+<<<<<<< Updated upstream
             <form id="loginForm" action="${pageContext.request.contextPath}/auth" method="post" class="login-form">
                 <input type="hidden" name="action" value="login">
                 
@@ -41,6 +46,30 @@
                             <i class="fas fa-eye"></i>
                         </span>
                     </div>
+=======
+            <c:if test="${not empty param.error}">
+                <div class="alert alert-danger">${param.error}</div>
+            </c:if>
+            
+            <c:if test="${not empty param.message}">
+                <div class="alert alert-success">${param.message}</div>
+            </c:if>
+            
+            <form id="loginForm" action="${pageContext.request.contextPath}/auth" method="post">
+                <input type="hidden" name="action" value="login">
+                
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                </div>
+                
+                <div class="form-group password-toggle">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                    <span class="toggle-password" onclick="togglePassword('password')">
+                        <i class="fa fa-eye"></i>
+                    </span>
+>>>>>>> Stashed changes
                 </div>
                 
                 <div class="form-group form-check remember-me">
@@ -66,10 +95,9 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <!-- SweetAlert2 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Custom JS -->
     <script src="${pageContext.request.contextPath}/js/password-toggle.js"></script>
+<<<<<<< Updated upstream
     
 	<script>
 	// Function to validate login form
@@ -179,5 +207,7 @@
 	    this.classList.remove('is-invalid');
 	});
 	</script>
+=======
+>>>>>>> Stashed changes
 </body>
 </html>

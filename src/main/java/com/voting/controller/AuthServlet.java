@@ -29,7 +29,7 @@ public class AuthServlet extends HttpServlet {
         } else if ("logout".equals(action)) {
             processLogout(request, response);
         } else {
-            response.sendRedirect("login.jsp?error=Invalid action");
+            response.sendRedirect(request.getContextPath() + "/login.jsp?error=Invalid action");
         }
     }
     
@@ -43,71 +43,60 @@ public class AuthServlet extends HttpServlet {
         String username = request.getParameter("username").trim();
         String password = request.getParameter("password").trim();
         
-        System.out.println("\n=== LOGIN ATTEMPT ===");
-        System.out.println("Username: [" + username + "]");
-        System.out.println("Password: [" + password + "]");
-
         try {
             Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
             UserDAO userDAO = new UserDAO(conn);
+            AuditLogDAO auditLogDAO = new AuditLogDAO(conn);
             
-            // 1. Find user
             User user = userDAO.getUserByUsername(username);
             if (user == null) {
-                System.out.println("ERROR: User not found in database");
-                response.sendRedirect(request.getContextPath() + "/login.jsp?error=Invalid username");
+                auditLogDAO.logAction(createAuditLog(null, "LOGIN_FAILED", 
+                    "Failed login attempt for username: " + username, request.getRemoteAddr()));
+                response.sendRedirect(request.getContextPath() + "/login.jsp?error=Invalid username or password");
                 return;
             }
             
-            // 2. Debug print user details
-            System.out.println("\nUSER DETAILS FROM DB:");
-            System.out.println("Username: " + user.getUsername());
-            System.out.println("Stored hash: " + user.getPasswordHash());
-            System.out.println("Status: " + user.getStatus());
-            System.out.println("Role: " + user.getRoleName());
-            
-            // 3. Verify password
-            System.out.println("\nPASSWORD VERIFICATION:");
-            boolean passwordValid = UserDAO.verifyPassword(password, user.getPasswordHash());
-            System.out.println("BCrypt.checkpw() result: " + passwordValid);
-            
-            // Temporary bypass for testing ONLY - remove after!
-            if ("officer".equals(username) && "officer123".equals(password)) {
-                System.out.println("WARNING: Using temporary password bypass");
-                passwordValid = true;
-            }
-            
-            if (!passwordValid) {
-                System.out.println("ERROR: Password verification failed");
-                response.sendRedirect(request.getContextPath() + "/login.jsp?error=Invalid password");
+            if (!UserDAO.verifyPassword(password, user.getPasswordHash())) {
+                auditLogDAO.logAction(createAuditLog(user.getUserId(), "LOGIN_FAILED", 
+                    "Failed login attempt for user ID: " + user.getUserId(), request.getRemoteAddr()));
+                response.sendRedirect(request.getContextPath() + "/login.jsp?error=Invalid username or password");
                 return;
             }
             
-            // 4. Check account status
             if (!"ACTIVE".equals(user.getStatus())) {
-                System.out.println("ERROR: Account not active");
-                response.sendRedirect(request.getContextPath() + "/login.jsp?error=Account not active");
+                response.sendRedirect(request.getContextPath() + "/login.jsp?error=Your account is not active");
                 return;
             }
             
-            // 5. Successful login
-            System.out.println("\nSUCCESS: Login valid, creating session...");
+            // Update last login time
+            userDAO.updateLastLogin(user.getUserId());
+            
+            // Create session
             HttpSession session = request.getSession();
             session.setAttribute("user", user);
-            System.out.println("Redirecting to: " + determineDashboardPath(user.getRoleName()));
             
-            // Use forward instead of redirect for debugging
-            request.getRequestDispatcher(determineDashboardPath(user.getRoleName()))
-                   .forward(request, response);
+            // Handle "Remember Me" if selected
+            handleRememberMe(request, response, user, userDAO);
+            
+            // Log successful login
+            auditLogDAO.logAction(createAuditLog(
+                user.getUserId(),
+                "LOGIN_SUCCESS",
+                "User logged in successfully",
+                request.getRemoteAddr()
+            ));
+            
+            // NEW: Use forward instead of redirect to maintain request context
+            String dashboardPath = getDashboardPath(user.getRoleName());
+            request.getRequestDispatcher(dashboardPath).forward(request, response);
             
         } catch (SQLException e) {
-            System.err.println("DATABASE ERROR:");
             e.printStackTrace();
             response.sendRedirect(request.getContextPath() + "/login.jsp?error=Database error");
         }
-    }	
-
-    private String determineDashboardPath(String roleName) {
+    }
+    
+    private String getDashboardPath(String roleName) {
         if (roleName == null) return "/voter/dashboard.jsp";
         
         switch (roleName.toUpperCase()) {
@@ -117,11 +106,66 @@ public class AuthServlet extends HttpServlet {
         }
     }
     
-    
     private void processRememberMeLogin(HttpServletRequest request, HttpServletResponse response) 
             throws IOException, ServletException {
+        Cookie[] cookies = request.getCookies();
+        String rememberToken = null;
+        String userId = null;
+        
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("rememberToken".equals(cookie.getName())) {
+                    rememberToken = cookie.getValue();
+                } else if ("userID".equals(cookie.getName())) {
+                    userId = cookie.getValue();
+                }
+            }
+        }
+        
+        if (rememberToken != null && userId != null) {
+            try {
+                Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
+                UserDAO userDAO = new UserDAO(conn);
+                
+                // First try to validate the token
+                User user = userDAO.validateRememberMeToken(Integer.parseInt(userId), rememberToken);
+                
+                if (user != null) {
+                    // Create new session
+                    HttpSession session = request.getSession();
+                    session.setAttribute("user", user);
+                    
+                    // Update last login time
+                    userDAO.updateLastLogin(user.getUserId());
+                    
+                    // Log successful remember me login
+                    AuditLogDAO auditLogDAO = new AuditLogDAO(conn);
+                    auditLogDAO.logAction(createAuditLog(
+                        user.getUserId(),
+                        "REMEMBER_ME_LOGIN",
+                        "User logged in via remember me",
+                        request.getRemoteAddr()
+                    ));
+                    
+                    // Forward to dashboard
+                    request.getRequestDispatcher(getDashboardPath(user.getRoleName())).forward(request, response);
+                    return;
+                } else {
+                    // Token validation failed - clear cookies
+                    clearCookie(response, "rememberToken", request.getContextPath());
+                    clearCookie(response, "userID", request.getContextPath());
+                }
+            } catch (SQLException | NumberFormatException e) {
+                System.err.println("Remember me token validation failed: " + e.getMessage());
+                // Clear invalid cookies on error
+                clearCookie(response, "rememberToken", request.getContextPath());
+                clearCookie(response, "userID", request.getContextPath());
+            }
+        }
+        
+        // Fall through to regular login page if no valid token
         response.sendRedirect(request.getContextPath() + "/login.jsp");
-    } 
+    }
     
     private void handleRememberMe(HttpServletRequest request, HttpServletResponse response, 
             User user, UserDAO userDAO) throws SQLException {
