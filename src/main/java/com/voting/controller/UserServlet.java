@@ -82,7 +82,7 @@ public class UserServlet extends HttpServlet{
     	String phone = request.getParameter("phone");
     	
     	try {
-    		Connection conn = (Connection) getServletContext().getAttribute("VOTING");
+    		Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
     		UserDAO userDAO = new UserDAO(conn);
     		AuditLogDAO auditLogDAO = new AuditLogDAO(conn);
     		
@@ -135,7 +135,7 @@ public class UserServlet extends HttpServlet{
     	 String phone = request.getParameter("phone");
     	 
     	 try {
-    		 Connection conn = (Connection) getServletContext().getAttribute("VOTING");
+    		 Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
     		 UserDAO userDAO = new UserDAO(conn);
     		 AuditLogDAO auditLogDAO = new AuditLogDAO(conn);
     		 
@@ -191,7 +191,7 @@ public class UserServlet extends HttpServlet{
         String newPassword = request.getParameter("newPassword");
         
         try {
-            Connection conn = (Connection) getServletContext().getAttribute("VOTING");
+            Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
             UserDAO userDAO = new UserDAO(conn);
             
             // Debug output

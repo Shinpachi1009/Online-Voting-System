@@ -44,7 +44,7 @@ public class AuthServlet extends HttpServlet {
         String password = request.getParameter("password").trim();
         
         try {
-            Connection conn = (Connection) getServletContext().getAttribute("VOTING");
+            Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
             UserDAO userDAO = new UserDAO(conn);
             AuditLogDAO auditLogDAO = new AuditLogDAO(conn);
             
@@ -124,7 +124,7 @@ public class AuthServlet extends HttpServlet {
         
         if (rememberToken != null && userId != null) {
             try {
-                Connection conn = (Connection) getServletContext().getAttribute("VOTING");
+                Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
                 UserDAO userDAO = new UserDAO(conn);
                 
                 // First try to validate the token
@@ -211,7 +211,7 @@ public class AuthServlet extends HttpServlet {
             
             if (user != null) {
                 try {
-                    Connection conn = (Connection) getServletContext().getAttribute("VOTING");
+                    Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
                     UserDAO userDAO = new UserDAO(conn);
                     userDAO.clearRememberToken(user.getUserId());
                     

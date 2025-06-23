@@ -23,7 +23,7 @@ public class VoterApprovalServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            Connection conn = (Connection) getServletContext().getAttribute("VOTING");
+            Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
             VoterDAO voterDAO = new VoterDAO(conn);
             
             request.setAttribute("pendingVoters", voterDAO.getPendingRegistrations());
@@ -50,7 +50,7 @@ public class VoterApprovalServlet extends HttpServlet {
         String notes = request.getParameter("notes");
         
         try {
-            Connection conn = (Connection) getServletContext().getAttribute("VOTING");
+            Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
             VoterDAO voterDAO = new VoterDAO(conn);
             
             if ("approve".equals(action)) {

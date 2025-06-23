@@ -23,14 +23,14 @@ public class DBConnectionListener implements ServletContextListener {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
             
             // Create connection - using absolute path with create=true
-            Connection conn = DriverManager.getConnection("jdbc:derby:C:\\Users\\Ian Palallos\\MyDB;create=true");
+            Connection conn = DriverManager.getConnection("jdbc:derby:C:\\Users\\uriur\\VotingDB;create=true");
             
             // Initialize database tables and admin account
             initializeDatabase(conn);
             
             // Store connection in application scope
             ServletContext ctx = sce.getServletContext();
-            ctx.setAttribute("VOTING", conn);
+            ctx.setAttribute("DBConnection", conn);
             
             System.out.println("Database connection initialized for Online Voting System");
         } catch (ClassNotFoundException | SQLException e) {
@@ -126,7 +126,7 @@ public class DBConnectionListener implements ServletContextListener {
     
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        Connection conn = (Connection) sce.getServletContext().getAttribute("VOTING");
+        Connection conn = (Connection) sce.getServletContext().getAttribute("DBConnection");
         try {
             if (conn != null && !conn.isClosed()) {
                 conn.close();
@@ -134,7 +134,7 @@ public class DBConnectionListener implements ServletContextListener {
                 
                 // Shutdown Derby
                 try {
-                    DriverManager.getConnection("jdbc:derby:C:\\Users\\Ian Palallos\\MyDB;create=true");
+                    DriverManager.getConnection("jdbc:derby:C:\\Users\\uriur\\VotingDB;create=true");
                 } catch (SQLException e) {
                     // Expected exception on shutdown
                     if (!"XJ015".equals(e.getSQLState())) {

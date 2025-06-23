@@ -58,7 +58,7 @@ public class VoterRegistrationServlet extends HttpServlet {
             String fileName = processFileUpload(filePart, request);
             
             // Register voter
-            Connection conn = (Connection) getServletContext().getAttribute("VOTING");
+            Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
             VoterDAO voterDAO = new VoterDAO(conn);
             
             if (voterDAO.getVoterByUserId(user.getUserId()) != null) {
