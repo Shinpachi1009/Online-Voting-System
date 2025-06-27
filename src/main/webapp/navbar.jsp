@@ -18,7 +18,7 @@
                 </c:if>
                 <c:if test="${user.roleName == 'ADMIN' || user.roleName == 'ELECTION_OFFICER'}">
                     <li class="nav-item">
-                        <a class="nav-link" href="${pageContext.request.contextPath}/admin/dashboard">Admin Panel</a>
+                        <a class="nav-link" href="${pageContext.request.contextPath}/dashboard">Admin Panel</a>
                     </li>
                 </c:if>
             </ul>
