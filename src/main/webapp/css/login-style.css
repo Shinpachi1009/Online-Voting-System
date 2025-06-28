@@ -11,48 +11,32 @@ body {
     color: #333;
 }
 
-.login-container {
-    width: 100%;
-    max-width: 450px;
-    padding: 20px;
-}
-
-body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) {
-    overflow-y: hidden !important;
-}
-
-.login-container {
-    position: relative;
-    z-index: 1;
-}
-
 html, body {
     height: 100%;
     overflow-x: hidden;
 }
 
+.login-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    max-width: 700px;
+    padding: 20px;
+    z-index: 1;
+}
+
 .login-card {
     background: white;
-    border-radius: 15px;
+    border-radius: 25px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    padding: 40px;
+    padding: 70px;
     transition: all 0.3s ease;
 }
 
 .login-card:hover {
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-}
-
-.login-card.invalid {
-    border: 2px solid #ff4444;
-    box-shadow: 0 0 0 2px rgba(255, 68, 68, 0.2);
-    animation: shake 0.5s ease-in-out;
-}
-
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    20%, 60% { transform: translateX(-5px); }
-    40%, 80% { transform: translateX(5px); }
 }
 
 .form-control.is-invalid {
@@ -72,7 +56,7 @@ html, body {
 }
 
 .logo {
-    width: 80px;
+    width: 200px;
     height: auto;
     margin-bottom: 15px;
 }
@@ -81,10 +65,11 @@ html, body {
     font-weight: 600;
     color: #2c3e50;
     margin: 10px 0 0;
+    font-size: 24px;
 }
 
 .login-form .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
 .login-form label {
@@ -94,14 +79,15 @@ html, body {
     align-items: center;
     gap: 8px;
     margin-bottom: 8px;
+    font-size: 16px;
 }
 
 .login-form .form-control {
-    height: 45px;
+    height: 50px;
     border-radius: 8px;
     border: 1px solid #ddd;
     padding-left: 15px;
-    font-size: 14px;
+    font-size: 15px;
     transition: all 0.3s;
 }
 
@@ -135,7 +121,7 @@ html, body {
 .remember-me {
     display: flex;
     align-items: center;
-    margin: 15px 0 20px 0;
+    margin: 20px 0 25px 0;
     padding-left: 20px;
 }
 
@@ -146,37 +132,22 @@ html, body {
 
 .remember-me .form-check-label {
     margin-bottom: 0;
-    font-size: 14px;
+    font-size: 15px;
     color: #555;
 }
 
-.remember-me .form-check-label {
-    margin-bottom: 0;
-    font-size: 14px;
-    color: #555;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    color: #555;
-}
-
+/* Login Button */
 .btn-login {
     background: linear-gradient(to right, #b30000, #ffcc00 );
     border: none;
     color: white;
-    padding: 12px;
+    padding: 14px;
     border-radius: 8px;
     font-weight: 500;
     letter-spacing: 0.5px;
     transition: all 0.3s;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    font-size: 16px;
 }
 
 .btn-login:hover {
@@ -187,53 +158,54 @@ html, body {
 
 .form-footer {
     text-align: center;
-    margin-top: 20px;
+    margin-top: 25px;
 }
 
 .forgot-password {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .forgot-password a, .register-link a {
     color: #b30000;
     text-decoration: none;
-    transition: color 0.3s;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    padding-bottom: 3px;
 }
 
 .forgot-password a:hover, .register-link a:hover {
-    color: #b30000;
-    text-decoration: underline;
+    color: #ff3333;
+    text-decoration: none;
+}
+
+.forgot-password a::after, .register-link a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #ff3333;
+    transition: width 0.4s ease;
+}
+
+.forgot-password a:hover::after, .register-link a:hover::after {
+    width: 100%;
+}
+
+/* Subtle Bounce Animation */
+@keyframes linkBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-2px); }
+}
+
+.forgot-password a:hover, .register-link a:hover {
+    animation: linkBounce 0.4s ease;
 }
 
 .register-link {
-    font-size: 14px;
+    font-size: 15px;
     color: #666;
-}
-
-@media (max-width: 576px) {
-    .login-card {
-        padding: 30px 20px;
-    }
-    
-    .logo {
-        width: 70px;
-    }
-}
-
-body.swal2-shown {
-    padding-right: 0 !important;
-    overflow: hidden;
-}
-
-.login-container {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    max-width: 450px;
-    padding: 20px;
-    z-index: 1;
 }
 
 .swal2-container {
@@ -246,5 +218,21 @@ body.swal2-shown {
         top: auto;
         transform: translate(-50%, 0);
         margin-top: 20px;
+    }
+    
+    .login-card {
+        padding: 35px 25px;
+    }
+    
+    .logo {
+        width: 90px;
+    }
+
+    .forgot-password a, .register-link a {
+        padding-bottom: 2px;
+    }
+    
+    .forgot-password a::after, .register-link a::after {
+        height: 1.5px;
     }
 }

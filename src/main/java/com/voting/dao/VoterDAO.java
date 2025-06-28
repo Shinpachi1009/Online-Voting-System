@@ -17,7 +17,7 @@ public class VoterDAO {
                      "VALUES (?, ?, ?, ?, ?, ?)";
         
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, voter.getUserId());
+            stmt.setInt(1, voter.getUserId());	
             stmt.setString(2, voter.getVoterIdNumber());
             stmt.setDate(3, voter.getDateOfBirth());
             stmt.setString(4, voter.getAddress());
