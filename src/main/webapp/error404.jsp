@@ -17,7 +17,7 @@
                     <div class="card-body">
                         <p>The page you requested could not be found.</p>
                         <img src="https://http.cat/404" alt="404 Cat" class="img-fluid mb-3">
-                        <a href="dashboard.jsp" class="btn btn-primary">Return to Dashboard</a>
+                        <a href="${pageContext.request.contextPath}/dashboard	" class="btn btn-primary">Return to Dashboard</a>
                     </div>
                 </div>
             </div>

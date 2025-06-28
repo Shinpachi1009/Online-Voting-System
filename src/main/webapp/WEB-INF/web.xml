@@ -30,13 +30,18 @@
         <session-timeout>30</session-timeout>
         <cookie-config>
             <http-only>true</http-only>
-            <secure>true</secure>
+            <secure>false</secure>
         </cookie-config>
     </session-config>
     
     <context-param>
 	    <param-name>file-upload</param-name>
 	    <param-value>/uploads</param-value>
+	</context-param>
+	
+	<context-param>
+	    <param-name>javax.servlet.session.tracking.modes</param-name>
+	    <param-value>COOKIE</param-value>
 	</context-param>
     
     <!-- Security constraints for Admin -->
