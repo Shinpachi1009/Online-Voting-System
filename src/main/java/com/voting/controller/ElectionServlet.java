@@ -51,15 +51,15 @@ public class ElectionServlet extends HttpServlet {
                     request.setAttribute("positions", positions);
                     request.getRequestDispatcher("/electionView.jsp").forward(request, response);
                 } else {
-                    session.setAttribute("error", "Election not found");
-                    response.sendRedirect(request.getContextPath() + "/voter/dashboard.jsp");
+                    request.setAttribute("error", "Election not found");
+                    request.getRequestDispatcher("/electionList.jsp").forward(request, response);
                 }
             } else if ("new".equals(action)) {
                 // Check admin role
                 User currentUser = (User) session.getAttribute("user");
                 if (!"ADMIN".equals(currentUser.getRoleName())) {
-                    session.setAttribute("error", "Unauthorized access");
-                    response.sendRedirect(request.getContextPath() + "/voter/dashboard.jsp");
+                    request.setAttribute("error", "Unauthorized access");
+                    request.getRequestDispatcher("/voter/dashboard.jsp").forward(request, response);
                     return;
                 }
                 request.getRequestDispatcher("/admin/electionCreate.jsp").forward(request, response);
@@ -71,8 +71,8 @@ public class ElectionServlet extends HttpServlet {
             }
         } catch (SQLException | NumberFormatException e) {
             e.printStackTrace();
-            session.setAttribute("error", "Server error occurred");
-            response.sendRedirect(request.getContextPath() + "/error500.jsp");
+            request.setAttribute("error", "Server error occurred");
+            request.getRequestDispatcher("/error500.jsp").forward(request, response);
         }
     }
     
@@ -86,8 +86,8 @@ public class ElectionServlet extends HttpServlet {
 
         User currentUser = (User) session.getAttribute("user");
         if (!"ADMIN".equals(currentUser.getRoleName())) {
-            session.setAttribute("error", "Unauthorized access");
-            response.sendRedirect(request.getContextPath() + "/voter/dashboard.jsp");
+            request.setAttribute("error", "Unauthorized access");
+            request.getRequestDispatcher("/voter/dashboard.jsp").forward(request, response);
             return;
         }
 
@@ -101,14 +101,13 @@ public class ElectionServlet extends HttpServlet {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            session.setAttribute("error", "Database error: " + e.getMessage());
-            response.sendRedirect(request.getContextPath() + "/admin/electionCreate.jsp");
+            request.setAttribute("error", "Database error: " + e.getMessage());
+            request.getRequestDispatcher("/admin/electionCreate.jsp").forward(request, response);
         }
     }
     
     private void createElection(HttpServletRequest request, HttpServletResponse response, Connection conn) 
             throws SQLException, ServletException, IOException {
-        HttpSession session = request.getSession();
         ElectionDAO electionDAO = new ElectionDAO(conn);
         PositionDAO positionDAO = new PositionDAO(conn);
         
@@ -159,12 +158,15 @@ public class ElectionServlet extends HttpServlet {
             }
             
             conn.commit();
-            session.setAttribute("message", "Election created successfully");
-            response.sendRedirect(request.getContextPath() + "/admin/dashboard.jsp");
+            request.setAttribute("message", "Election created successfully!");
+            request.setAttribute("election", election); // Pass the created election back to the form
+            
+            // Forward back to the creation form with success message
+            request.getRequestDispatcher("/admin/electionCreate.jsp").forward(request, response);
         } catch (SQLException e) {
             conn.rollback();
-            session.setAttribute("error", "Failed to create election: " + e.getMessage());
-            response.sendRedirect(request.getContextPath() + "/admin/electionCreate.jsp");
+            request.setAttribute("error", "Failed to create election: " + e.getMessage());
+            request.getRequestDispatcher("/admin/electionCreate.jsp").forward(request, response);
             throw e;
         } finally {
             conn.setAutoCommit(true);
