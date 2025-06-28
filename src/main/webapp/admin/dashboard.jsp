@@ -30,141 +30,108 @@
     <meta charset="UTF-8">
     <title>Admin Dashboard - Online Voting System</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <style>
-        .card-hover:hover {
-            transform: translateY(-5px);
-            transition: transform 0.3s;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-        .stat-card {
-            border-left: 4px solid;
-        }
-        .stat-card .card-body {
-            padding: 1rem;
-        }
-        .stat-card i {
-            font-size: 2rem;
-            opacity: 0.7;
-        }
-        .quick-action-btn {
-            transition: all 0.3s;
-        }
-        .quick-action-btn:hover {
-            transform: scale(1.05);
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/navbar-style.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/dashboard-style.css">
 </head>
 <body>
     <jsp:include page="/navbar.jsp" />
     
-    <div class="container mt-4">
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <h2><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h2>
-                <p class="text-muted">Welcome back, ${user.firstName}! Here's what's happening today.</p>
+    <div class="admin-container">
+        <div class="welcome-card">
+            <h4 class="welcome-header">
+                <i class="fas fa-user-shield"></i> Admin Dashboard
+            </h4>
+            <div class="alert alert-info">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong><i class="fas fa-user"></i> Welcome:</strong> ${user.firstName} ${user.lastName}<br>
+                        <strong><i class="fas fa-clock"></i> Last Login:</strong> 
+                        <c:choose>
+                            <c:when test="${empty user.lastLogin}">Never</c:when>
+                            <c:otherwise>${user.lastLogin}</c:otherwise>
+                        </c:choose>
+                    </div>
+                    <div>
+                        <a href="${pageContext.request.contextPath}/election?action=new" class="btn btn-primary">
+                            <i class="fas fa-plus-circle"></i> New Election
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
         
-        <!-- Quick Stats Row -->
-        <div class="row mb-4">
-            <div class="col-md-3 mb-3">
-                <div class="card stat-card border-left-primary h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <h6 class="text-uppercase text-muted">Active Elections</h6>
-                                <h2 class="mb-0"><%= activeElections %></h2>
-                            </div>
-                            <div class="text-primary">
-                                <i class="fas fa-vote-yea"></i>
-                            </div>
-                        </div>
+        <!-- Quick Stats -->
+        <div class="stats-grid">
+            <div class="stat-card" style="border-left-color: #0062cc;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-label">Active Elections</div>
+                        <div class="stat-value text-primary"><%= activeElections %></div>
                     </div>
+                    <i class="fas fa-vote-yea text-primary"></i>
                 </div>
             </div>
-            <div class="col-md-3 mb-3">
-                <div class="card stat-card border-left-success h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <h6 class="text-uppercase text-muted">Total Candidates</h6>
-                                <h2 class="mb-0"><%= totalCandidates %></h2>
-                            </div>
-                            <div class="text-success">
-                                <i class="fas fa-users"></i>
-                            </div>
-                        </div>
+            
+            <div class="stat-card" style="border-left-color: #28a745;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-label">Total Candidates</div>
+                        <div class="stat-value text-success"><%= totalCandidates %></div>
                     </div>
+                    <i class="fas fa-users text-success"></i>
                 </div>
             </div>
-            <div class="col-md-3 mb-3">
-                <div class="card stat-card border-left-info h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <h6 class="text-uppercase text-muted">Votes Cast</h6>
-                                <h2 class="mb-0"><%= totalVotes %></h2>
-                            </div>
-                            <div class="text-info">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                        </div>
+            
+            <div class="stat-card" style="border-left-color: #17a2b8;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-label">Votes Cast</div>
+                        <div class="stat-value text-info"><%= totalVotes %></div>
                     </div>
+                    <i class="fas fa-check-circle text-info"></i>
                 </div>
             </div>
-            <div class="col-md-3 mb-3">
-                <div class="card stat-card border-left-warning h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <h6 class="text-uppercase text-muted">Pending Actions</h6>
-                                <h2 class="mb-0">0</h2>
-                            </div>
-                            <div class="text-warning">
-                                <i class="fas fa-exclamation-circle"></i>
-                            </div>
-                        </div>
+            
+            <div class="stat-card" style="border-left-color: #ffc107;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="stat-label">Pending Actions</div>
+                        <div class="stat-value text-warning">0</div>
                     </div>
+                    <i class="fas fa-exclamation-circle text-warning"></i>
                 </div>
             </div>
         </div>
         
         <!-- Quick Actions -->
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Quick Actions</h5>
-                        <div class="d-flex flex-wrap">
-                            <a href="electionCreate.jsp" class="btn btn-primary m-2 quick-action-btn">
-                                <i class="fas fa-plus-circle mr-2"></i>Create Election
-                            </a>
-                            <a href="election?action=manage" class="btn btn-success m-2 quick-action-btn">
-                                <i class="fas fa-edit mr-2"></i>Manage Elections
-                            </a>
-                            <a href="candidate?action=list" class="btn btn-info m-2 quick-action-btn">
-                                <i class="fas fa-users mr-2"></i>View Candidates
-                            </a>
-                            <a href="votes.jsp" class="btn btn-warning m-2 quick-action-btn">
-                                <i class="fas fa-poll mr-2"></i>View Votes
-                            </a>
-                            <a href="users.jsp" class="btn btn-dark m-2 quick-action-btn">
-                                <i class="fas fa-user-cog mr-2"></i>Manage Users
-                            </a>
-                        </div>
-                    </div>
-                </div>
+        <div class="action-card">
+            <div class="card-header bg-primary">
+                <i class="fas fa-bolt"></i> Quick Actions
+            </div>
+            <div class="card-body">
+                <a href="electionCreate.jsp" class="btn btn-primary">
+                    <i class="fas fa-plus-circle"></i> Create Election
+                </a>
+                <a href="election?action=manage" class="btn btn-success">
+                    <i class="fas fa-edit"></i> Manage Elections
+                </a>
+                <a href="candidate?action=list" class="btn btn-info">
+                    <i class="fas fa-users"></i> View Candidates
+                </a>
+                <a href="votes.jsp" class="btn btn-warning">
+                    <i class="fas fa-poll"></i> View Votes
+                </a>
             </div>
         </div>
         
-        <!-- Main Cards Row -->
+        <!-- Main Sections -->
         <div class="row">
-            <div class="col-md-6 mb-4">
-                <div class="card card-hover h-100">
-                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                        <h5><i class="fas fa-vote-yea mr-2"></i>Election Management</h5>
-                        <a href="${pageContext.request.contextPath}/election?action=new" class="btn btn-light btn-sm">+ New</a>
+            <div class="col-md-6">
+                <div class="action-card">
+                    <div class="card-header bg-success">
+                        <i class="fas fa-vote-yea"></i> Election Management
                     </div>
                     <div class="card-body">
                         <div class="list-group">
@@ -185,10 +152,10 @@
                 </div>
             </div>
             
-            <div class="col-md-6 mb-4">
-                <div class="card card-hover h-100">
-                    <div class="card-header bg-success text-white">
-                        <h5><i class="fas fa-users mr-2"></i>Candidate Management</h5>
+            <div class="col-md-6">
+                <div class="action-card">
+                    <div class="card-header bg-info">
+                        <i class="fas fa-users"></i> Candidate Management
                     </div>
                     <div class="card-body">
                         <div class="list-group">
@@ -197,7 +164,6 @@
                                 <span class="badge badge-success badge-pill"><%= totalCandidates %></span>
                             </a>
                             <%
-                                // Get first active election for example link
                                 if (activeElections > 0) {
                                     int firstElectionId = electionDAO.getActiveElections().get(0).getElectionId();
                             %>
@@ -216,12 +182,11 @@
             </div>
         </div>
         
-        <!-- Second Row -->
-        <div class="row">
-            <div class="col-md-6 mb-4">
-                <div class="card card-hover h-100">
-                    <div class="card-header bg-info text-white">
-                        <h5><i class="fas fa-poll mr-2"></i>Voting Activity</h5>
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="action-card">
+                    <div class="card-header bg-warning">
+                        <i class="fas fa-poll"></i> Voting Activity
                     </div>
                     <div class="card-body">
                         <div class="list-group">
@@ -246,77 +211,10 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="col-md-6 mb-4">
-                <div class="card card-hover h-100">
-                    <div class="card-header bg-dark text-white">
-                        <h5><i class="fas fa-cogs mr-2"></i>System Management</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="list-group">
-                            <a href="user?action=list" class="list-group-item list-group-item-action">
-                                <i class="fas fa-users-cog mr-2"></i>User Accounts
-                            </a>
-                            <a href="audit.jsp" class="list-group-item list-group-item-action">
-                                <i class="fas fa-clipboard-list mr-2"></i>Audit Logs
-                            </a>
-                            <a href="settings.jsp" class="list-group-item list-group-item-action">
-                                <i class="fas fa-sliders-h mr-2"></i>System Settings
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Recent Activity -->
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header bg-secondary text-white">
-                        <h5><i class="fas fa-history mr-2"></i>Recent Activity</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Time</th>
-                                        <th>Activity</th>
-                                        <th>User</th>
-                                        <th>Details</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Sample data - in real app, fetch from database -->
-                                    <tr>
-                                        <td>10 min ago</td>
-                                        <td>New vote cast</td>
-                                        <td>john_doe</td>
-                                        <td>Voted for President</td>
-                                    </tr>
-                                    <tr>
-                                        <td>25 min ago</td>
-                                        <td>New candidate</td>
-                                        <td>jane_smith</td>
-                                        <td>Registered for Vice President</td>
-                                    </tr>
-                                    <tr>
-                                        <td>1 hour ago</td>
-                                        <td>Election created</td>
-                                        <td>admin</td>
-                                        <td>Student Council Election</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
