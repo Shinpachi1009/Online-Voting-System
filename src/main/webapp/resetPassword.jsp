@@ -16,23 +16,23 @@
         <div class="reset-container">
             <h2 class="text-center mb-4">Reset Password</h2>
             
-            <c:if test="${not empty param.error}">
-                <div class="alert alert-danger">${param.error}</div>
+            <c:if test="${not empty error}">
+                <div class="alert alert-danger">${error}</div>
             </c:if>
             
-            <form action="password-reset" method="post" id="resetForm">
+            <form id="resetPasswordForm" action="password-reset" method="post">
                 <input type="hidden" name="action" value="reset">
                 <input type="hidden" name="token" value="${param.token}">
                 
                 <div class="form-group">
                     <label for="newPassword">New Password</label>
-                    <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                    <input type="password" id="newPassword" name="newPassword" class="form-control" required>
                     <small class="form-text text-muted">Password must be at least 8 characters long and contain at least one number and one special character.</small>
                 </div>
                 
                 <div class="form-group">
                     <label for="confirmPassword">Confirm New Password</label>
-                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
                 </div>
                 
                 <button type="submit" class="btn btn-primary btn-block">Reset Password</button>
@@ -43,7 +43,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#resetForm').submit(function(e) {
+            $('#resetPasswordForm').submit(function(e) {
                 const password = $('#newPassword').val();
                 const confirmPassword = $('#confirmPassword').val();
                 

@@ -16,20 +16,20 @@
         <div class="forgot-container">
             <h2 class="text-center mb-4">Forgot Password</h2>
             
-            <c:if test="${not empty param.error}">
-                <div class="alert alert-danger">${param.error}</div>
+            <c:if test="${not empty error}">
+                <div class="alert alert-danger">${error}</div>
             </c:if>
             
-            <c:if test="${not empty param.message}">
-                <div class="alert alert-success">${param.message}</div>
+            <c:if test="${not empty message}">
+                <div class="alert alert-success">${message}</div>
             </c:if>
             
-            <form action="password-reset" method="post" id="forgotForm">
+            <form id="forgotPasswordForm" action="password-reset" method="post">
                 <input type="hidden" name="action" value="request">
                 
                 <div class="form-group">
                     <label for="email">Email Address</label>
-                    <input type="email" class="form-control" id="email" name="email" required>
+                    <input type="email" id="email" name="email" class="form-control" required>
                     <small class="form-text text-muted">Enter your registered email address to receive a password reset link.</small>
                 </div>
                 
@@ -41,18 +41,17 @@
             </div>
         </div>
     </div>
-    
+
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#forgotForm').submit(function(e) {
+            $('#forgotPasswordForm').submit(function(e) {
                 const email = $('#email').val();
                 
                 // Simple email validation
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(email)) {
+                if (!email || !email.includes('@') || !email.includes('.')) {
                     e.preventDefault();
-                    alert('Please enter a valid email address.');
+                    alert('Please enter a valid email address');
                     return false;
                 }
                 

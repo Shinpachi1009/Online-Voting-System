@@ -54,4 +54,24 @@ public class PositionDAO {
             return stmt.executeUpdate() > 0;
         }
     }
+    public Position getPositionById(int positionId) throws SQLException {
+        String sql = "SELECT * FROM positions WHERE position_id = ?";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, positionId);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Position position = new Position();
+                    position.setPositionId(rs.getInt("position_id"));
+                    position.setElectionId(rs.getInt("election_id"));
+                    position.setTitle(rs.getString("title"));
+                    position.setDescription(rs.getString("description"));
+                    position.setMaxVotes(rs.getInt("max_votes"));
+                    return position;
+                }
+            }
+        }
+        return null;
+    }
 }

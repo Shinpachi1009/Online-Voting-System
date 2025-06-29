@@ -72,7 +72,7 @@ public class VoterRegistrationServlet extends HttpServlet {
             }
 
             // Success - redirect to confirmation page
-            response.sendRedirect(request.getContextPath() + "/voter-registration/voterRegistrationSuccess.jsp");
+            response.sendRedirect(request.getContextPath() + "/voter-registration/voterRegistration.jsp");
             
         } catch (Exception e) {
             request.setAttribute("error", e.getMessage());

@@ -22,12 +22,14 @@ import javax.servlet.http.HttpServletResponse;
 public class PasswordResetServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     
-    // Email configuration - should be in config file in real application
+    // Email configuration - should be in config file in production
     private static final String SMTP_HOST = "smtp.gmail.com";
     private static final String SMTP_PORT = "587";
-    private static final String EMAIL_USERNAME = "yourvotingsystem@gmail.com";
-    private static final String EMAIL_PASSWORD = "yourpassword"; // Use app-specific password
-    
+    private static final String EMAIL_USERNAME = "your-email@gmail.com";
+    private static final String EMAIL_PASSWORD = "your-email-password";
+    private static final String EMAIL_FROM = "your-email@gmail.com";
+    private static final String APP_BASE_URL = "http://localhost:8080/Online-Voting-System";
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         String token = request.getParameter("token");
@@ -41,11 +43,13 @@ public class PasswordResetServlet extends HttpServlet {
                     request.setAttribute("token", token);
                     request.getRequestDispatcher("/resetPassword.jsp").forward(request, response);
                 } else {
-                    response.sendRedirect("forgotPassword.jsp?error=Invalid or expired token");
+                    request.setAttribute("error", "Invalid or expired token");
+                    request.getRequestDispatcher("/forgotPassword.jsp").forward(request, response);
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
-                response.sendRedirect("forgotPassword.jsp?error=Database error");
+                request.setAttribute("error", "Database error");
+                request.getRequestDispatcher("/forgotPassword.jsp").forward(request, response);
             }
         } else {
             response.sendRedirect("forgotPassword.jsp");
@@ -81,12 +85,8 @@ public class PasswordResetServlet extends HttpServlet {
                 // Generate token
                 String token = tokenDAO.createToken(user.getUserId());
                 
-                // Create reset link
-                String appUrl = request.getRequestURL().toString().replace(request.getServletPath(), "");
-                String resetLink = appUrl + "/resetPassword.jsp?token=" + token;
-                
                 // Send email
-                sendPasswordResetEmail(user.getEmail(), resetLink);
+                sendPasswordResetEmail(user.getEmail(), token);
                 
                 // Log password reset request
                 AuditLog auditLog = new AuditLog();
@@ -96,52 +96,22 @@ public class PasswordResetServlet extends HttpServlet {
                 auditLog.setIpAddress(request.getRemoteAddr());
                 auditLogDAO.logAction(auditLog);
                 
-                response.sendRedirect("forgotPassword.jsp?message=If an account with that email exists, a reset link has been sent");
+                request.setAttribute("message", "If an account with that email exists, a reset link has been sent");
             } else {
                 // For security, don't reveal whether the email exists
-                response.sendRedirect("forgotPassword.jsp?message=If an account with that email exists, a reset link has been sent");
+                request.setAttribute("message", "If an account with that email exists, a reset link has been sent");
             }
+            request.getRequestDispatcher("/forgotPassword.jsp").forward(request, response);
+            
         } catch (SQLException e) {
             e.printStackTrace();
-            response.sendRedirect("forgotPassword.jsp?error=Database error");
+            request.setAttribute("error", "Database error");
+            request.getRequestDispatcher("/forgotPassword.jsp").forward(request, response);
         } catch (MessagingException e) {
             e.printStackTrace();
-            response.sendRedirect("forgotPassword.jsp?error=Failed to send email");
+            request.setAttribute("error", "Failed to send reset email");
+            request.getRequestDispatcher("/forgotPassword.jsp").forward(request, response);
         }
-    }
-    
-    private void sendPasswordResetEmail(String recipientEmail, String resetLink) throws MessagingException {
-        // Email properties
-        Properties props = new Properties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", SMTP_HOST);
-        props.put("mail.smtp.port", SMTP_PORT);
-        
-        // Create session
-        Session session = Session.getInstance(props, new Authenticator() {
-            @Override
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(EMAIL_USERNAME, EMAIL_PASSWORD);
-            }
-        });
-        
-        // Create email
-        Message message = new MimeMessage(session);
-        message.setFrom(new InternetAddress(EMAIL_USERNAME));
-        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipientEmail));
-        message.setSubject("Password Reset Request - Online Voting System");
-        
-        String content = "<h3>Password Reset Request</h3>"
-                + "<p>You requested to reset your password. Please click the link below to set a new password:</p>"
-                + "<p><a href=\"" + resetLink + "\">Reset Password</a></p>"
-                + "<p>If you didn't request this, please ignore this email.</p>"
-                + "<p>This link will expire in 24 hours.</p>";
-        
-        message.setContent(content, "text/html");
-        
-        // Send email
-        Transport.send(message);
     }
     
     private void processPasswordReset(HttpServletRequest request, HttpServletResponse response) 
@@ -172,16 +142,65 @@ public class PasswordResetServlet extends HttpServlet {
                     auditLog.setIpAddress(request.getRemoteAddr());
                     auditLogDAO.logAction(auditLog);
                     
-                    response.sendRedirect("login.jsp?message=Password reset successful. Please login with your new password.");
+                    request.setAttribute("message", "Password reset successful. Please login with your new password.");
+                    request.getRequestDispatcher("/login.jsp").forward(request, response);
                 } else {
-                    response.sendRedirect("resetPassword.jsp?token=" + token + "&error=Password reset failed");
+                    request.setAttribute("error", "Password reset failed");
+                    request.setAttribute("token", token);
+                    request.getRequestDispatcher("/resetPassword.jsp").forward(request, response);
                 }
             } else {
-                response.sendRedirect("forgotPassword.jsp?error=Invalid or expired token");
+                request.setAttribute("error", "Invalid or expired token");
+                request.getRequestDispatcher("/forgotPassword.jsp").forward(request, response);
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            response.sendRedirect("resetPassword.jsp?token=" + token + "&error=Database error");
+            request.setAttribute("error", "Database error");
+            request.setAttribute("token", token);
+            request.getRequestDispatcher("/resetPassword.jsp").forward(request, response);
+        }
+    }
+    
+    private void sendPasswordResetEmail(String toEmail, String token) throws MessagingException {
+        // Email properties
+        Properties props = new Properties();
+        props.put("mail.smtp.host", SMTP_HOST);
+        props.put("mail.smtp.port", SMTP_PORT);
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        
+        // Create session
+        Session session = Session.getInstance(props,
+            new javax.mail.Authenticator() {
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(EMAIL_USERNAME, EMAIL_PASSWORD);
+                }
+            });
+        
+        try {
+            // Create message
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(EMAIL_FROM));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+            message.setSubject("Password Reset Request - Online Voting System");
+            
+            // Create reset link
+            String resetLink = APP_BASE_URL + "/password-reset?token=" + token;
+            
+            // Email content
+            String content = "<h3>Password Reset Request</h3>"
+                + "<p>You have requested to reset your password for the Online Voting System.</p>"
+                + "<p>Please click the link below to reset your password:</p>"
+                + "<p><a href=\"" + resetLink + "\">Reset Password</a></p>"
+                + "<p>This link will expire in 24 hours.</p>"
+                + "<p>If you didn't request this, please ignore this email.</p>";
+            
+            message.setContent(content, "text/html");
+            
+            // Send message
+            Transport.send(message);
+        } catch (MessagingException e) {
+            throw new MessagingException("Failed to send password reset email", e);
         }
     }
 }

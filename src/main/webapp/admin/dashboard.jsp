@@ -134,15 +134,15 @@
                     </div>
                     <div class="card-body">
                         <div class="list-group">
-                            <a href="election?action=list&status=active" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                                 Active Elections
                                 <span class="badge badge-primary badge-pill"><%= activeElections %></span>
                             </a>
-                            <a href="election?action=list&status=upcoming" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                                 Upcoming Elections
                                 <span class="badge badge-info badge-pill"><%= electionDAO.getElectionsByStatus("UPCOMING").size() %></span>
                             </a>
-                            <a href="election?action=list&status=completed" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                                 Completed Elections
                                 <span class="badge badge-secondary badge-pill"><%= electionDAO.getElectionsByStatus("COMPLETED").size() %></span>
                             </a>
