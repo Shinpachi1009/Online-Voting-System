@@ -30,18 +30,7 @@ public class VoteDAO {
         }
     }
 
-    public boolean hasVoted(int userId, int positionId) throws SQLException {
-        String sql = "SELECT 1 FROM votes WHERE user_id = ? AND position_id = ?";
-        
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, userId);
-            stmt.setInt(2, positionId);
-            
-            try (ResultSet rs = stmt.executeQuery()) {
-                return rs.next();
-            }
-        }
-    }
+
 
     public List<Vote> getVotesByPosition(int positionId) throws SQLException {
         List<Vote> votes = new ArrayList<>();
@@ -92,5 +81,48 @@ public class VoteDAO {
             }
         }
         return 0;
+    }
+    
+    public int getTotalVotes(int electionId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM votes WHERE election_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, electionId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        }
+    }
+
+    public int getTotalVotesForPosition(int positionId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM votes WHERE position_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, positionId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        }
+    }
+
+    public int getVoteCount(int candidateId, int positionId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM votes WHERE candidate_id = ? AND position_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, candidateId);
+            stmt.setInt(2, positionId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
+        }
+    }
+
+    public boolean hasVoted(int userId, int electionId) throws SQLException {
+        String sql = "SELECT 1 FROM votes v JOIN positions p ON v.position_id = p.position_id " +
+                     "WHERE v.user_id = ? AND p.election_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            stmt.setInt(2, electionId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        }
     }
 }

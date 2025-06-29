@@ -39,6 +39,7 @@ public class ElectionServlet extends HttpServlet {
             Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
             ElectionDAO electionDAO = new ElectionDAO(conn);
             
+         // In the "view" action block of doGet() method:
             if ("view".equals(action)) {
                 int electionId = Integer.parseInt(request.getParameter("id"));
                 Election election = electionDAO.getElectionById(electionId);
@@ -47,14 +48,22 @@ public class ElectionServlet extends HttpServlet {
                     PositionDAO positionDAO = new PositionDAO(conn);
                     List<Position> positions = positionDAO.getPositionsByElection(electionId);
                     
-                    request.setAttribute("election", election);
+                    // Set all election attributes explicitly
+                    request.setAttribute("electionId", election.getElectionId());
+                    request.setAttribute("title", election.getTitle());
+                    request.setAttribute("description", election.getDescription());
+                    request.setAttribute("startDate", election.getStartDate());
+                    request.setAttribute("endDate", election.getEndDate());
+                    request.setAttribute("status", election.getStatus());
                     request.setAttribute("positions", positions);
-                    request.getRequestDispatcher("/electionView.jsp").forward(request, response);
+                    
+                    // Forward to the correct path
+                    request.getRequestDispatcher("/election/electionView.jsp").forward(request, response);
                 } else {
                     request.setAttribute("error", "Election not found");
                     request.getRequestDispatcher("/electionList.jsp").forward(request, response);
                 }
-            } 
+            }
             else if ("new".equals(action)) {
                 // Check admin role
                 User currentUser = (User) session.getAttribute("user");
