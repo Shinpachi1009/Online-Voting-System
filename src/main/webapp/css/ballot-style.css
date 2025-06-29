@@ -1,0 +1,222 @@
+@charset "UTF-8";
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #b30000 0%, #ffcc00 100%);
+    margin: 0;
+    padding-top: 70px;
+    min-height: 100vh;
+    color: #333;
+}
+
+.ballot-container {
+    width: 100%;
+    max-width: 1200px;
+    padding: 20px;
+    margin: 20px auto;
+}
+
+.welcome-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    margin-bottom: 30px;
+    position: relative;
+    overflow: hidden;
+}
+
+.welcome-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 8px;
+    height: 100%;
+    background: linear-gradient(to bottom, #b30000, #ffcc00);
+}
+
+.welcome-header {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.8rem;
+}
+
+.welcome-header i {
+    color: #b30000;
+    font-size: 2rem;
+}
+
+.alert-info {
+    background-color: #f8f9fa;
+    border-left: 8px solid #b30000;
+    color: #495057;
+    border-radius: 15px;
+    padding: 20px;
+}
+
+.action-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.action-card:hover {
+    transform: translateY(-5px);
+}
+
+.card-header {
+    font-weight: 600;
+    padding: 15px 20px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.2rem;
+}
+
+.card-header i {
+    font-size: 1.5rem;
+}
+
+.bg-primary {
+    background: linear-gradient(to right, #0062cc, #0096ff);
+}
+
+.candidate-card {
+    border: 1px solid #ddd;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    background: white;
+}
+
+.candidate-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.candidate-card.selected {
+    border: 2px solid #28a745;
+    background-color: #f8f9fa;
+}
+
+.candidate-avatar {
+    font-size: 3rem;
+    color: #0062cc;
+}
+
+.btn {
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transition: all 0.3s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-family: 'Poppins', sans-serif;
+}
+
+.btn-primary {
+    background: linear-gradient(to right, #0062cc, #0096ff);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(to right, #0056b3, #0080ff);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 98, 204, 0.3);
+    color: black;
+}
+
+.btn-success {
+    background: linear-gradient(to right, #28a745, #5cb85c);
+    color: white;
+}
+
+.btn-success:hover {
+    background: linear-gradient(to right, #218838, #4cae4c);
+    transform: translateY(-3px);
+    box-shadow: 0 7px 20px rgba(40, 167, 69, 0.4);
+    color: black;
+}
+
+.btn-secondary {
+    background: linear-gradient(to right, #6c757d, #868e96);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(to right, #5a6268, #6c757d);
+    transform: translateY(-3px);
+    box-shadow: 0 7px 20px rgba(108, 117, 125, 0.4);
+    color: black;
+}
+
+.form-check-input {
+    width: 1.2em;
+    height: 1.2em;
+    margin-top: 0.2em;
+}
+
+.form-check-label {
+    margin-left: 0.5em;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding-top: 60px;
+    }
+    
+    .ballot-container {
+        padding: 15px;
+    }
+    
+    .welcome-card {
+        padding: 20px;
+    }
+    
+    .alert-info {
+        padding: 15px;
+    }
+    
+    .welcome-header {
+        font-size: 1.5rem;
+    }
+    
+    .card-header {
+        font-size: 1.1rem;
+    }
+    
+    .btn {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+    
+    .col-md-6 {
+        padding: 0 5px;
+    }
+    
+    .mt-4.d-flex {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .btn-lg {
+        width: 100%;
+    }
+}

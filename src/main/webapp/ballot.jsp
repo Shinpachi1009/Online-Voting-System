@@ -25,71 +25,86 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Cast Your Vote - Online Voting System</title>
+    <title>Cast Your Vote</title>
+    <link rel="icon" href="${pageContext.request.contextPath}/images/logo.png" type="image/x-icon">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        .candidate-card {
-            transition: all 0.3s;
-            margin-bottom: 20px;
-            cursor: pointer;
-        }
-        .candidate-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        .candidate-card.selected {
-            border: 2px solid #007bff;
-            background-color: #f8f9fa;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/navbar-style.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/ballot-style.css">
 </head>
 <body>
     <jsp:include page="/navbar.jsp" />
     
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-md-8 offset-md-2">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h4>Cast Your Vote</h4>
+    <div class="ballot-container">
+        <div class="welcome-card">
+            <h4 class="welcome-header">
+                <i class="fas fa-vote-yea"></i> Cast Your Vote
+            </h4>
+            <div class="alert alert-info">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong><i class="fas fa-info-circle"></i> Please select your candidate:</strong> 
+                        Your vote is confidential and cannot be changed once submitted
                     </div>
-                    <div class="card-body">
-                        <h5>Select your candidate:</h5>
-                        
-                        <form action="vote" method="post">
-                            <input type="hidden" name="action" value="cast">
-                            <input type="hidden" name="electionId" value="${electionId}">
-                            <input type="hidden" name="positionId" value="${positionId}">
-                            
-                            <div class="row">
-                                <c:forEach items="${candidates}" var="candidate">
-                                    <div class="col-md-6">
-                                        <div class="card candidate-card" onclick="selectCandidate(this, ${candidate.candidateId})">
-                                            <div class="card-body">
-                                                <h5 class="card-title">${candidate.fullName}</h5>
-                                                <h6 class="card-subtitle mb-2 text-muted">${candidate.username}</h6>
-                                                <p class="card-text">${candidate.bio}</p>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" 
-                                                           name="candidateId" id="candidate-${candidate.candidateId}" 
-                                                           value="${candidate.candidateId}" required>
-                                                    <label class="form-check-label" for="candidate-${candidate.candidateId}">
-                                                        Select this candidate
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </c:forEach>
-                            </div>
-                            
-                            <div class="mt-4">
-                                <button type="submit" class="btn btn-primary btn-lg btn-block">Submit Vote</button>
-                                <a href="election?action=view&id=${electionId}" class="btn btn-secondary btn-block mt-2">Cancel</a>
-                            </div>
-                        </form>
+                    <div>
+                        <a href="election?action=view&id=${electionId}" class="btn btn-primary">
+                            <i class="fas fa-arrow-left"></i> Back to Election
+                        </a>
                     </div>
                 </div>
+            </div>
+        </div>
+        
+        <div class="action-card">
+            <div class="card-header bg-primary">
+                <i class="fas fa-users"></i> Candidates
+            </div>
+            <div class="card-body">
+                <form action="vote" method="post">
+                    <input type="hidden" name="action" value="cast">
+                    <input type="hidden" name="electionId" value="${electionId}">
+                    <input type="hidden" name="positionId" value="${positionId}">
+                    
+                    <div class="row">
+                        <c:forEach items="${candidates}" var="candidate">
+                            <div class="col-md-6">
+                                <div class="candidate-card" onclick="selectCandidate(this, ${candidate.candidateId})">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center">
+                                            <div class="candidate-avatar">
+                                                <i class="fas fa-user-circle"></i>
+                                            </div>
+                                            <div class="ml-3">
+                                                <h5 class="card-title mb-1">${candidate.fullName}</h5>
+                                                <h6 class="card-subtitle text-muted">@${candidate.username}</h6>
+                                            </div>
+                                        </div>
+                                        <p class="card-text mt-3">${candidate.bio}</p>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" 
+                                                   name="candidateId" id="candidate-${candidate.candidateId}" 
+                                                   value="${candidate.candidateId}" required>
+                                            <label class="form-check-label" for="candidate-${candidate.candidateId}">
+                                                Select this candidate
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </c:forEach>
+                    </div>
+                    
+                    <div class="mt-4 d-flex justify-content-between">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-check-circle"></i> Submit Vote
+                        </button>
+                        <a href="election?action=view&id=${electionId}" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-times-circle"></i> Cancel
+                        </a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

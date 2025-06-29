@@ -103,8 +103,8 @@
                 if (!bio) {
                     errorMessage = 'Bio/Manifesto is required';
                     isValid = false;
-                } else if (bio.length < 50) {
-                    errorMessage = 'Bio/Manifesto should be at least 50 characters';
+                } else if (bio.length < 10) {
+                    errorMessage = 'Bio/Manifesto should be at least 10 characters';
                     isValid = false;
                 }
                 
