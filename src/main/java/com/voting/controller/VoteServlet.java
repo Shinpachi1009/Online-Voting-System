@@ -15,7 +15,6 @@ import javax.servlet.http.HttpSession;
 
 @WebServlet("/vote")
 public class VoteServlet extends HttpServlet {
-
 	private static final long serialVersionUID = 1L;
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -26,29 +25,26 @@ public class VoteServlet extends HttpServlet {
             return;
         }
 
-        String action = request.getParameter("action");
-        
-        if ("cast".equals(action)) {
-            try {
-                Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
-                VoteDAO voteDAO = new VoteDAO(conn);
-                User user = (User) session.getAttribute("user");
-                
-                Vote vote = new Vote();
-                vote.setElectionId(Integer.parseInt(request.getParameter("electionId")));
-                vote.setPositionId(Integer.parseInt(request.getParameter("positionId")));
-                vote.setCandidateId(Integer.parseInt(request.getParameter("candidateId")));
-                vote.setUserId(user.getUserId());
-                
-                if (voteDAO.castVote(vote)) {
-                    response.sendRedirect("voter/dashboard.jsp?message=Vote cast successfully");
-                } else {
-                    response.sendRedirect("voter/dashboard.jsp?error=Failed to cast vote (maybe already voted)");
-                }
-            } catch (SQLException | NumberFormatException e) {
-                e.printStackTrace();
-                response.sendRedirect("error500.jsp");
+        try {
+            Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
+            VoteDAO voteDAO = new VoteDAO(conn);
+            
+            User currentUser = (User) session.getAttribute("user");
+            
+            Vote vote = new Vote();
+            vote.setElectionId(Integer.parseInt(request.getParameter("electionId")));
+            vote.setPositionId(Integer.parseInt(request.getParameter("positionId")));
+            vote.setCandidateId(Integer.parseInt(request.getParameter("candidateId")));
+            vote.setUserId(currentUser.getUserId());
+            
+            if (voteDAO.castVote(vote)) {
+                response.sendRedirect("voter/dashboard.jsp?message=Vote cast successfully");
+            } else {
+                response.sendRedirect("voter/dashboard.jsp?error=Failed to cast vote (maybe already voted)");
             }
+        } catch (SQLException | NumberFormatException e) {
+            e.printStackTrace();
+            response.sendRedirect("error500.jsp");
         }
     }
 }

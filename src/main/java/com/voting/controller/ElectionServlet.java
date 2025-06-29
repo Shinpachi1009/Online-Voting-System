@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -24,12 +25,20 @@ import javax.servlet.http.HttpSession;
 @WebServlet("/election")
 public class ElectionServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private static final String ELECTION_VIEW_JSP = "/election/electionView.jsp";
+    private static final String ELECTION_LIST_JSP = "/electionList.jsp";
+    private static final String ELECTION_CREATE_JSP = "/admin/electionCreate.jsp";
+    private static final String ELECTION_MANAGE_JSP = "/admin/electionManagement.jsp";
+    private static final String ELECTION_EDIT_JSP = "/admin/electionEdit.jsp";
+    private static final String DASHBOARD_JSP = "/voter/dashboard.jsp";
+    private static final String ERROR_500_JSP = "/error500.jsp";
+    private static final String LOGIN_JSP = "/login.jsp";
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect(request.getContextPath() + "/login.jsp");
+            response.sendRedirect(request.getContextPath() + LOGIN_JSP);
             return;
         }
 
@@ -39,7 +48,6 @@ public class ElectionServlet extends HttpServlet {
             Connection conn = (Connection) getServletContext().getAttribute("DBConnection");
             ElectionDAO electionDAO = new ElectionDAO(conn);
             
-         // In the "view" action block of doGet() method:
             if ("view".equals(action)) {
                 int electionId = Integer.parseInt(request.getParameter("id"));
                 Election election = electionDAO.getElectionById(electionId);
@@ -48,51 +56,49 @@ public class ElectionServlet extends HttpServlet {
                     PositionDAO positionDAO = new PositionDAO(conn);
                     List<Position> positions = positionDAO.getPositionsByElection(electionId);
                     
-                    // Set all election attributes explicitly
+                    // Format dates for display
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                    
                     request.setAttribute("electionId", election.getElectionId());
                     request.setAttribute("title", election.getTitle());
                     request.setAttribute("description", election.getDescription());
-                    request.setAttribute("startDate", election.getStartDate());
-                    request.setAttribute("endDate", election.getEndDate());
+                    request.setAttribute("startDate", dateFormat.format(election.getStartDate()));
+                    request.setAttribute("endDate", dateFormat.format(election.getEndDate()));
                     request.setAttribute("status", election.getStatus());
                     request.setAttribute("positions", positions);
                     
-                    // Forward to the correct path
-                    request.getRequestDispatcher("/election/electionView.jsp").forward(request, response);
+                    request.getRequestDispatcher(ELECTION_VIEW_JSP).forward(request, response);
                 } else {
                     request.setAttribute("error", "Election not found");
-                    request.getRequestDispatcher("/electionList.jsp").forward(request, response);
+                    request.getRequestDispatcher(ELECTION_LIST_JSP).forward(request, response);
                 }
             }
             else if ("new".equals(action)) {
-                // Check admin role
                 User currentUser = (User) session.getAttribute("user");
                 if (!"ADMIN".equals(currentUser.getRoleName())) {
                     request.setAttribute("error", "Unauthorized access");
-                    request.getRequestDispatcher("/voter/dashboard.jsp").forward(request, response);
+                    request.getRequestDispatcher(DASHBOARD_JSP).forward(request, response);
                     return;
                 }
-                request.getRequestDispatcher("/admin/electionCreate.jsp").forward(request, response);
+                request.getRequestDispatcher(ELECTION_CREATE_JSP).forward(request, response);
             }
             else if ("manage".equals(action)) {
-                // Check admin role
                 User currentUser = (User) session.getAttribute("user");
                 if (!"ADMIN".equals(currentUser.getRoleName())) {
                     request.setAttribute("error", "Unauthorized access");
-                    request.getRequestDispatcher("/voter/dashboard.jsp").forward(request, response);
+                    request.getRequestDispatcher(DASHBOARD_JSP).forward(request, response);
                     return;
                 }
                 
                 List<Election> allElections = electionDAO.getAllElections();
                 request.setAttribute("elections", allElections);
-                request.getRequestDispatcher("/admin/electionManagement.jsp").forward(request, response);
+                request.getRequestDispatcher(ELECTION_MANAGE_JSP).forward(request, response);
             }
             else if ("edit".equals(action)) {
-                // Check admin role
                 User currentUser = (User) session.getAttribute("user");
                 if (!"ADMIN".equals(currentUser.getRoleName())) {
                     request.setAttribute("error", "Unauthorized access");
-                    request.getRequestDispatcher("/voter/dashboard.jsp").forward(request, response);
+                    request.getRequestDispatcher(DASHBOARD_JSP).forward(request, response);
                     return;
                 }
                 
@@ -105,10 +111,10 @@ public class ElectionServlet extends HttpServlet {
                     
                     request.setAttribute("election", election);
                     request.setAttribute("positions", positions);
-                    request.getRequestDispatcher("/admin/electionEdit.jsp").forward(request, response);
+                    request.getRequestDispatcher(ELECTION_EDIT_JSP).forward(request, response);
                 } else {
                     request.setAttribute("error", "Election not found");
-                    request.getRequestDispatcher("/admin/electionManagement.jsp").forward(request, response);
+                    request.getRequestDispatcher(ELECTION_MANAGE_JSP).forward(request, response);
                 }
             }
             else if ("list".equals(action)) {
@@ -122,18 +128,17 @@ public class ElectionServlet extends HttpServlet {
                 }
                 
                 request.setAttribute("elections", elections);
-                request.getRequestDispatcher("/electionList.jsp").forward(request, response);
+                request.getRequestDispatcher(ELECTION_LIST_JSP).forward(request, response);
             }
             else {
-                // Default to active elections
                 List<Election> elections = electionDAO.getActiveElections();
                 request.setAttribute("elections", elections);
-                request.getRequestDispatcher("/electionList.jsp").forward(request, response);
+                request.getRequestDispatcher(ELECTION_LIST_JSP).forward(request, response);
             }
         } catch (SQLException | NumberFormatException e) {
             e.printStackTrace();
-            request.setAttribute("error", "Server error occurred");
-            request.getRequestDispatcher("/error500.jsp").forward(request, response);
+            request.setAttribute("error", "Server error occurred: " + e.getMessage());
+            request.getRequestDispatcher(ERROR_500_JSP).forward(request, response);
         }
     }
     
@@ -141,14 +146,14 @@ public class ElectionServlet extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect(request.getContextPath() + "/login.jsp");
+            response.sendRedirect(request.getContextPath() + LOGIN_JSP);
             return;
         }
 
         User currentUser = (User) session.getAttribute("user");
         if (!"ADMIN".equals(currentUser.getRoleName())) {
             request.setAttribute("error", "Unauthorized access");
-            request.getRequestDispatcher("/voter/dashboard.jsp").forward(request, response);
+            request.getRequestDispatcher(DASHBOARD_JSP).forward(request, response);
             return;
         }
 
@@ -174,11 +179,11 @@ public class ElectionServlet extends HttpServlet {
             request.setAttribute("error", "Database error: " + e.getMessage());
             
             if ("create".equals(action)) {
-                request.getRequestDispatcher("/admin/electionCreate.jsp").forward(request, response);
+                request.getRequestDispatcher(ELECTION_CREATE_JSP).forward(request, response);
             } else if ("update".equals(action)) {
-                request.getRequestDispatcher("/admin/electionEdit.jsp").forward(request, response);
+                request.getRequestDispatcher(ELECTION_EDIT_JSP).forward(request, response);
             } else {
-                request.getRequestDispatcher("/admin/electionManagement.jsp").forward(request, response);
+                request.getRequestDispatcher(ELECTION_MANAGE_JSP).forward(request, response);
             }
         }
     }
@@ -188,19 +193,16 @@ public class ElectionServlet extends HttpServlet {
         ElectionDAO electionDAO = new ElectionDAO(conn);
         PositionDAO positionDAO = new PositionDAO(conn);
         
-        // Create election
         Election election = new Election();
         election.setTitle(request.getParameter("title"));
         election.setDescription(request.getParameter("description"));
         election.setStartDate(Timestamp.valueOf(request.getParameter("startDate").replace("T", " ") + ":00"));
         election.setEndDate(Timestamp.valueOf(request.getParameter("endDate").replace("T", " ") + ":00"));
-        election.setStatus("ACTIVE"); // Default to upcoming
+        election.setStatus("ACTIVE");
         
-        // Start transaction
         conn.setAutoCommit(false);
         
         try {
-            // Insert election
             String sql = "INSERT INTO elections (title, description, start_date, end_date, status) VALUES (?, ?, ?, ?, ?)";
             try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setString(1, election.getTitle());
@@ -218,7 +220,6 @@ public class ElectionServlet extends HttpServlet {
                 }
             }
             
-            // Insert positions
             String[] positionTitles = request.getParameterValues("positionTitles");
             String[] positionDescriptions = request.getParameterValues("positionDescriptions");
             
@@ -228,7 +229,7 @@ public class ElectionServlet extends HttpServlet {
                     position.setElectionId(election.getElectionId());
                     position.setTitle(positionTitles[i]);
                     position.setDescription(positionDescriptions[i]);
-                    position.setMaxVotes(1); // Default to single selection
+                    position.setMaxVotes(1);
                     
                     positionDAO.createPosition(position);
                 }
@@ -252,7 +253,6 @@ public class ElectionServlet extends HttpServlet {
         
         int electionId = Integer.parseInt(request.getParameter("electionId"));
         
-        // Update election
         Election election = new Election();
         election.setElectionId(electionId);
         election.setTitle(request.getParameter("title"));
@@ -260,11 +260,9 @@ public class ElectionServlet extends HttpServlet {
         election.setStartDate(Timestamp.valueOf(request.getParameter("startDate").replace("T", " ") + ":00"));
         election.setEndDate(Timestamp.valueOf(request.getParameter("endDate").replace("T", " ") + ":00"));
         
-        // Start transaction
         conn.setAutoCommit(false);
         
         try {
-            // Update election
             String sql = "UPDATE elections SET title = ?, description = ?, start_date = ?, end_date = ? WHERE election_id = ?";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, election.getTitle());
@@ -276,10 +274,8 @@ public class ElectionServlet extends HttpServlet {
                 stmt.executeUpdate();
             }
             
-            // Delete existing positions
             positionDAO.deletePositionsByElection(electionId);
             
-            // Insert updated positions
             String[] positionTitles = request.getParameterValues("positionTitles");
             String[] positionDescriptions = request.getParameterValues("positionDescriptions");
             
@@ -289,7 +285,7 @@ public class ElectionServlet extends HttpServlet {
                     position.setElectionId(electionId);
                     position.setTitle(positionTitles[i]);
                     position.setDescription(positionDescriptions[i]);
-                    position.setMaxVotes(1); // Default to single selection
+                    position.setMaxVotes(1);
                     
                     positionDAO.createPosition(position);
                 }
@@ -311,15 +307,12 @@ public class ElectionServlet extends HttpServlet {
         int electionId = Integer.parseInt(request.getParameter("id"));
         ElectionDAO electionDAO = new ElectionDAO(conn);
         
-        // Start transaction
         conn.setAutoCommit(false);
         
         try {
-            // First delete positions
             PositionDAO positionDAO = new PositionDAO(conn);
             positionDAO.deletePositionsByElection(electionId);
             
-            // Then delete election
             boolean deleted = electionDAO.deleteElection(electionId);
             
             conn.commit();
@@ -336,7 +329,6 @@ public class ElectionServlet extends HttpServlet {
             conn.setAutoCommit(true);
         }
         
-        // Redirect back to management page
         response.sendRedirect(request.getContextPath() + "/election?action=manage");
     }
     

@@ -28,7 +28,7 @@
                         <strong><i class="fas fa-user"></i> Admin:</strong> ${user.firstName} ${user.lastName}
                     </div>
                     <div>
-                        <a href="${pageContext.request.contextPath}/election?action=list" class="btn btn-primary">
+                        <a href="${pageContext.request.contextPath}/dashboard" class="btn btn-primary">
                             <i class="fas fa-arrow-left"></i> Back to Elections
                         </a>
                     </div>
