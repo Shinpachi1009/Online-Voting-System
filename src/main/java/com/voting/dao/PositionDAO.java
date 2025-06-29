@@ -46,4 +46,12 @@ public class PositionDAO {
             return stmt.executeUpdate() > 0;
         }
     }
+    
+    public boolean deletePositionsByElection(int electionId) throws SQLException {
+        String sql = "DELETE FROM positions WHERE election_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, electionId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
 }

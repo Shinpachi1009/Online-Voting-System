@@ -79,3 +79,41 @@ CREATE TABLE voter_audit (
     previous_status VARCHAR(20),
     new_status VARCHAR(20),
     n
+    
+-- Candidates table (simplified)
+CREATE TABLE candidates (
+    candidate_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    user_id INT NOT NULL REFERENCES users(user_id),
+    position VARCHAR(100) NOT NULL,
+    bio VARCHAR(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Elections table
+CREATE TABLE elections (
+    election_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    title VARCHAR(100) NOT NULL,
+    description VARCHAR(500),
+    start_date TIMESTAMP NOT NULL,
+    end_date TIMESTAMP NOT NULL,
+    status VARCHAR(20) DEFAULT 'ACTIVE'
+);
+
+-- Positions/Races table
+CREATE TABLE positions (
+    position_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    election_id INT NOT NULL REFERENCES elections(election_id),
+    title VARCHAR(100) NOT NULL,
+    description VARCHAR(500),
+    max_votes INT DEFAULT 1
+);
+
+-- Votes table
+CREATE TABLE votes (
+    vote_id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    election_id INT NOT NULL REFERENCES elections(election_id),
+    position_id INT NOT NULL REFERENCES positions(position_id),
+    candidate_id INT NOT NULL REFERENCES candidates(candidate_id),
+    user_id INT NOT NULL REFERENCES users(user_id),
+    voted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

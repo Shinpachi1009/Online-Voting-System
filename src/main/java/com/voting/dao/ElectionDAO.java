@@ -42,6 +42,20 @@ public class ElectionDAO {
         election.setStatus(rs.getString("status"));
         return election;
     }
+    
+    public List<Election> getAllElections() throws SQLException {
+        List<Election> elections = new ArrayList<>();
+        String sql = "SELECT * FROM elections";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            
+            while (rs.next()) {
+                elections.add(mapElectionFromResultSet(rs));
+            }
+        }
+        return elections;
+    }
 
     public Election getElectionById(int electionId) throws SQLException {
         String sql = "SELECT * FROM elections WHERE election_id = ?";
@@ -76,6 +90,24 @@ public class ElectionDAO {
             stmt.setTimestamp(4, election.getEndDate());
             stmt.setString(5, election.getStatus());
             
+            return stmt.executeUpdate() > 0;
+        }
+    }
+    
+    public boolean updateElectionStatus(int electionId, String status) throws SQLException {
+        String sql = "UPDATE elections SET status = ? WHERE election_id = ?";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, status);
+            stmt.setInt(2, electionId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    public boolean deleteElection(int electionId) throws SQLException {
+        String sql = "DELETE FROM elections WHERE election_id = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, electionId);
             return stmt.executeUpdate() > 0;
         }
     }

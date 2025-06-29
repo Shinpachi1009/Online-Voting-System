@@ -54,7 +54,8 @@ public class ElectionServlet extends HttpServlet {
                     request.setAttribute("error", "Election not found");
                     request.getRequestDispatcher("/electionList.jsp").forward(request, response);
                 }
-            } else if ("new".equals(action)) {
+            } 
+            else if ("new".equals(action)) {
                 // Check admin role
                 User currentUser = (User) session.getAttribute("user");
                 if (!"ADMIN".equals(currentUser.getRoleName())) {
@@ -63,8 +64,59 @@ public class ElectionServlet extends HttpServlet {
                     return;
                 }
                 request.getRequestDispatcher("/admin/electionCreate.jsp").forward(request, response);
-            } else {
-                // List active elections by default
+            }
+            else if ("manage".equals(action)) {
+                // Check admin role
+                User currentUser = (User) session.getAttribute("user");
+                if (!"ADMIN".equals(currentUser.getRoleName())) {
+                    request.setAttribute("error", "Unauthorized access");
+                    request.getRequestDispatcher("/voter/dashboard.jsp").forward(request, response);
+                    return;
+                }
+                
+                List<Election> allElections = electionDAO.getAllElections();
+                request.setAttribute("elections", allElections);
+                request.getRequestDispatcher("/admin/electionManagement.jsp").forward(request, response);
+            }
+            else if ("edit".equals(action)) {
+                // Check admin role
+                User currentUser = (User) session.getAttribute("user");
+                if (!"ADMIN".equals(currentUser.getRoleName())) {
+                    request.setAttribute("error", "Unauthorized access");
+                    request.getRequestDispatcher("/voter/dashboard.jsp").forward(request, response);
+                    return;
+                }
+                
+                int electionId = Integer.parseInt(request.getParameter("id"));
+                Election election = electionDAO.getElectionById(electionId);
+                
+                if (election != null) {
+                    PositionDAO positionDAO = new PositionDAO(conn);
+                    List<Position> positions = positionDAO.getPositionsByElection(electionId);
+                    
+                    request.setAttribute("election", election);
+                    request.setAttribute("positions", positions);
+                    request.getRequestDispatcher("/admin/electionEdit.jsp").forward(request, response);
+                } else {
+                    request.setAttribute("error", "Election not found");
+                    request.getRequestDispatcher("/admin/electionManagement.jsp").forward(request, response);
+                }
+            }
+            else if ("list".equals(action)) {
+                String status = request.getParameter("status");
+                List<Election> elections;
+                
+                if (status != null) {
+                    elections = electionDAO.getElectionsByStatus(status.toUpperCase());
+                } else {
+                    elections = electionDAO.getActiveElections();
+                }
+                
+                request.setAttribute("elections", elections);
+                request.getRequestDispatcher("/electionList.jsp").forward(request, response);
+            }
+            else {
+                // Default to active elections
                 List<Election> elections = electionDAO.getActiveElections();
                 request.setAttribute("elections", elections);
                 request.getRequestDispatcher("/electionList.jsp").forward(request, response);
@@ -99,10 +151,26 @@ public class ElectionServlet extends HttpServlet {
             if ("create".equals(action)) {
                 createElection(request, response, conn);
             }
+            else if ("update".equals(action)) {
+                updateElection(request, response, conn);
+            }
+            else if ("delete".equals(action)) {
+                deleteElection(request, response, conn);
+            }
+            else if ("changestatus".equals(action)) {
+                changeElectionStatus(request, response, conn);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             request.setAttribute("error", "Database error: " + e.getMessage());
-            request.getRequestDispatcher("/admin/electionCreate.jsp").forward(request, response);
+            
+            if ("create".equals(action)) {
+                request.getRequestDispatcher("/admin/electionCreate.jsp").forward(request, response);
+            } else if ("update".equals(action)) {
+                request.getRequestDispatcher("/admin/electionEdit.jsp").forward(request, response);
+            } else {
+                request.getRequestDispatcher("/admin/electionManagement.jsp").forward(request, response);
+            }
         }
     }
     
@@ -117,7 +185,7 @@ public class ElectionServlet extends HttpServlet {
         election.setDescription(request.getParameter("description"));
         election.setStartDate(Timestamp.valueOf(request.getParameter("startDate").replace("T", " ") + ":00"));
         election.setEndDate(Timestamp.valueOf(request.getParameter("endDate").replace("T", " ") + ":00"));
-        election.setStatus("ACTIVE");
+        election.setStatus("ACTIVE"); // Default to upcoming
         
         // Start transaction
         conn.setAutoCommit(false);
@@ -159,17 +227,122 @@ public class ElectionServlet extends HttpServlet {
             
             conn.commit();
             request.setAttribute("message", "Election created successfully!");
-            request.setAttribute("election", election); // Pass the created election back to the form
-            
-            // Forward back to the creation form with success message
-            request.getRequestDispatcher("/admin/electionCreate.jsp").forward(request, response);
+            response.sendRedirect(request.getContextPath() + "/election?action=manage");
         } catch (SQLException e) {
             conn.rollback();
-            request.setAttribute("error", "Failed to create election: " + e.getMessage());
-            request.getRequestDispatcher("/admin/electionCreate.jsp").forward(request, response);
             throw e;
         } finally {
             conn.setAutoCommit(true);
         }
+    }
+    
+    private void updateElection(HttpServletRequest request, HttpServletResponse response, Connection conn) 
+            throws SQLException, ServletException, IOException {
+        ElectionDAO electionDAO = new ElectionDAO(conn);
+        PositionDAO positionDAO = new PositionDAO(conn);
+        
+        int electionId = Integer.parseInt(request.getParameter("electionId"));
+        
+        // Update election
+        Election election = new Election();
+        election.setElectionId(electionId);
+        election.setTitle(request.getParameter("title"));
+        election.setDescription(request.getParameter("description"));
+        election.setStartDate(Timestamp.valueOf(request.getParameter("startDate").replace("T", " ") + ":00"));
+        election.setEndDate(Timestamp.valueOf(request.getParameter("endDate").replace("T", " ") + ":00"));
+        
+        // Start transaction
+        conn.setAutoCommit(false);
+        
+        try {
+            // Update election
+            String sql = "UPDATE elections SET title = ?, description = ?, start_date = ?, end_date = ? WHERE election_id = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, election.getTitle());
+                stmt.setString(2, election.getDescription());
+                stmt.setTimestamp(3, election.getStartDate());
+                stmt.setTimestamp(4, election.getEndDate());
+                stmt.setInt(5, election.getElectionId());
+                
+                stmt.executeUpdate();
+            }
+            
+            // Delete existing positions
+            positionDAO.deletePositionsByElection(electionId);
+            
+            // Insert updated positions
+            String[] positionTitles = request.getParameterValues("positionTitles");
+            String[] positionDescriptions = request.getParameterValues("positionDescriptions");
+            
+            if (positionTitles != null) {
+                for (int i = 0; i < positionTitles.length; i++) {
+                    Position position = new Position();
+                    position.setElectionId(electionId);
+                    position.setTitle(positionTitles[i]);
+                    position.setDescription(positionDescriptions[i]);
+                    position.setMaxVotes(1); // Default to single selection
+                    
+                    positionDAO.createPosition(position);
+                }
+            }
+            
+            conn.commit();
+            request.setAttribute("message", "Election updated successfully!");
+            response.sendRedirect(request.getContextPath() + "/election?action=manage");
+        } catch (SQLException e) {
+            conn.rollback();
+            throw e;
+        } finally {
+            conn.setAutoCommit(true);
+        }
+    }
+    
+    private void deleteElection(HttpServletRequest request, HttpServletResponse response, Connection conn) 
+            throws SQLException, ServletException, IOException {
+        int electionId = Integer.parseInt(request.getParameter("id"));
+        ElectionDAO electionDAO = new ElectionDAO(conn);
+        
+        // Start transaction
+        conn.setAutoCommit(false);
+        
+        try {
+            // First delete positions
+            PositionDAO positionDAO = new PositionDAO(conn);
+            positionDAO.deletePositionsByElection(electionId);
+            
+            // Then delete election
+            boolean deleted = electionDAO.deleteElection(electionId);
+            
+            conn.commit();
+            
+            if (deleted) {
+                request.getSession().setAttribute("message", "Election deleted successfully");
+            } else {
+                request.getSession().setAttribute("error", "Failed to delete election");
+            }
+        } catch (SQLException e) {
+            conn.rollback();
+            request.getSession().setAttribute("error", "Database error: " + e.getMessage());
+        } finally {
+            conn.setAutoCommit(true);
+        }
+        
+        // Redirect back to management page
+        response.sendRedirect(request.getContextPath() + "/election?action=manage");
+    }
+    
+    private void changeElectionStatus(HttpServletRequest request, HttpServletResponse response, Connection conn) 
+            throws SQLException, ServletException, IOException {
+        int electionId = Integer.parseInt(request.getParameter("id"));
+        String newStatus = request.getParameter("status");
+        ElectionDAO electionDAO = new ElectionDAO(conn);
+        
+        if (electionDAO.updateElectionStatus(electionId, newStatus)) {
+            request.setAttribute("message", "Election status updated successfully");
+        } else {
+            request.setAttribute("error", "Failed to update election status");
+        }
+        
+        response.sendRedirect(request.getContextPath() + "/election?action=manage");
     }
 }
