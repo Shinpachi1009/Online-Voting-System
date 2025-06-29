@@ -29,6 +29,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Admin Dashboard</title>
+    <link rel="icon" href="${pageContext.request.contextPath}/images/logo.png" type="image/x-icon">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -42,7 +43,7 @@
     <div class="admin-container">
         <div class="welcome-card">
             <h4 class="welcome-header">
-                <i class="fas fa-user-shield"></i> Admin Dashboard
+                <i class="fas fa-user-shield"></i> Admin Officer
             </h4>
             <div class="alert alert-info">
                 <div class="d-flex justify-content-between align-items-center">
