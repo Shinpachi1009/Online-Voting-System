@@ -3,7 +3,7 @@
 <nav class="navbar navbar-expand-lg navbar-custom">
     <div class="container">
         <a class="navbar-brand" href="${pageContext.request.contextPath}/dashboard">
-            <i class="fas fa-vote-yea"></i> Online Voting System
+            <i class="bi bi-star-fill"></i> PUP Online Voting System
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
@@ -12,7 +12,7 @@
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="${pageContext.request.contextPath}/dashboard">
-                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                        <i class="bi bi-house-fill"></i> Dashboard
                     </a>
                 </li>
                 <c:if test="${user.roleName == 'VOTER'}">
@@ -24,7 +24,7 @@
                 </c:if>
                 <c:if test="${user.roleName == 'ADMIN' || user.roleName == 'ELECTION_OFFICER'}">
                     <li class="nav-item">
-                        <a class="nav-link" href="${pageContext.request.contextPath}/admin/dashboard">
+                        <a class="nav-link" href="${pageContext.request.contextPath}/dashboard">
                             <i class="fas fa-user-shield"></i> Admin Panel
                         </a>
                     </li>

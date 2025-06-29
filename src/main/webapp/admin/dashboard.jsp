@@ -28,12 +28,13 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Admin Dashboard - Online Voting System</title>
+    <title>Admin Dashboard</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/navbar-style.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/dashboard-style.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin-dashboard-style.css">
 </head>
 <body>
     <jsp:include page="/navbar.jsp" />
@@ -55,7 +56,7 @@
                     </div>
                     <div>
                         <a href="${pageContext.request.contextPath}/election?action=new" class="btn btn-primary">
-                            <i class="fas fa-plus-circle"></i> New Election
+                            <i class="fas fa-plus-circle"></i> Create Election
                         </a>
                     </div>
                 </div>
@@ -111,9 +112,6 @@
                 <i class="fas fa-bolt"></i> Quick Actions
             </div>
             <div class="card-body">
-                <a href="electionCreate.jsp" class="btn btn-primary">
-                    <i class="fas fa-plus-circle"></i> Create Election
-                </a>
                 <a href="election?action=manage" class="btn btn-success">
                     <i class="fas fa-edit"></i> Manage Elections
                 </a>
