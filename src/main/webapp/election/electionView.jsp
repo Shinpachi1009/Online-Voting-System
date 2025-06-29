@@ -86,10 +86,10 @@
                                                         </a>
                                                     </c:when>
                                                     <c:otherwise>
-                                                        <a href="ballot.jsp?electionId=${param.id}&positionId=${position.positionId}" 
-                                                           class="btn btn-primary btn-sm">
-                                                            Vote Now
-                                                        </a>
+                                                       <a href="ballot.jsp?electionId=${electionId}&positionId=${position.positionId}" 
+   														class="btn btn-primary btn-sm">
+    													Vote Now
+														</a>
                                                     </c:otherwise>
                                                 </c:choose>
                                             </div>

@@ -60,6 +60,32 @@ public class CandidateDAO {
         }
         return candidates;
     }
+    
+    public List<Candidate> getCandidatesByPositionId(int positionId) throws SQLException {
+        List<Candidate> candidates = new ArrayList<>();
+        String sql = "SELECT c.*, u.username, u.first_name || ' ' || u.last_name as full_name " +
+                     "FROM candidates c JOIN users u ON c.user_id = u.user_id " +
+                     "JOIN positions p ON c.position = p.title " +
+                     "WHERE p.position_id = ?";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, positionId);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Candidate candidate = new Candidate();
+                    candidate.setCandidateId(rs.getInt("candidate_id"));
+                    candidate.setUserId(rs.getInt("user_id"));
+                    candidate.setPosition(rs.getString("position"));
+                    candidate.setBio(rs.getString("bio"));
+                    candidate.setUsername(rs.getString("username"));
+                    candidate.setFullName(rs.getString("full_name"));
+                    candidates.add(candidate);
+                }
+            }
+        }
+        return candidates;
+    }
 
     public boolean isUserCandidate(int userId) throws SQLException {
         String sql = "SELECT 1 FROM candidates WHERE user_id = ?";
