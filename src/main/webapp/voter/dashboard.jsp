@@ -86,9 +86,6 @@
                 <div class="election-grid">
                     <c:forEach items="${elections}" var="election">
                         <div class="election-card">
-                            <c:if test="${isCandidate}">
-                                <span class="candidate-badge">Candidate</span>
-                            </c:if>
                             <div class="election-card-header">
                                 <h5 class="election-title">${election.title}</h5>
                                 <span class="badge badge-success">${election.status}</span>
