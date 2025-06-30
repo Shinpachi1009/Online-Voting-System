@@ -15,6 +15,9 @@ public class Voter {
     private Integer approvedBy;
     private Timestamp approvalDate;
     private String documentPath;
+    private String firstName;
+    private String lastName;
+    private String username;
     
     // Getters and Setters
     public int getVoterId() { return voterId; }
@@ -49,4 +52,13 @@ public class Voter {
     
     public String getDocumentPath() { return documentPath; }
     public void setDocumentPath(String documentPath) { this.documentPath = documentPath; }
+    
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
+
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
 }

@@ -23,7 +23,7 @@ public class DBConnectionListener implements ServletContextListener {
             Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
             
             // Create connection - using absolute path with create=true
-            Connection conn = DriverManager.getConnection("jdbc:derby:C:\\Users\\Shania Jarrisse\\MyDB;create=true");
+            Connection conn = DriverManager.getConnection("jdbc:derby:C:\\Users\\uriur\\VotingDB;create=true");
             
             // Initialize database tables and admin account
             initializeDatabase(conn);
@@ -134,7 +134,7 @@ public class DBConnectionListener implements ServletContextListener {
                 
                 // Shutdown Derby
                 try {
-                    DriverManager.getConnection("jdbc:derby:C:\\Users\\Shania Jarrisse\\MyDB;create=true");
+                    DriverManager.getConnection("jdbc:derby:C:\\Users\\uriur\\VotingDB;create=true");
                 } catch (SQLException e) {
                     // Expected exception on shutdown
                     if (!"XJ015".equals(e.getSQLState())) {

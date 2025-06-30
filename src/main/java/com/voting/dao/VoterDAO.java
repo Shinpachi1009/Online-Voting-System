@@ -127,4 +127,31 @@ public class VoterDAO {
         voter.setDocumentPath(rs.getString("document_path"));
         return voter;
     }
+    
+    public List<Voter> getAllVoters() throws SQLException {
+        List<Voter> voters = new ArrayList<>();
+        String sql = "SELECT v.*, u.username, u.first_name, u.last_name " +
+                    "FROM voters v JOIN users u ON v.user_id = u.user_id";
+        
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                Voter voter = mapVoterFromResultSet(rs);
+                voter.setUsername(rs.getString("username"));
+                voter.setFirstName(rs.getString("first_name"));
+                voter.setLastName(rs.getString("last_name"));
+                voters.add(voter);
+            }
+        }
+        return voters;
+    }
+
+    public boolean deleteVoter(int voterId) throws SQLException {
+        String sql = "DELETE FROM voters WHERE voter_id = ?";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, voterId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
 }

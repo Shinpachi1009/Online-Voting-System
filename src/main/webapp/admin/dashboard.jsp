@@ -4,7 +4,12 @@
 <%@page import="com.voting.dao.ElectionDAO" %>
 <%@page import="com.voting.dao.CandidateDAO" %>
 <%@page import="com.voting.dao.VoteDAO" %>
+<%@page import="com.voting.dao.VoterDAO" %>
 <%@page import="java.sql.Connection" %>
+<%@page import="java.util.List" %>
+<%@page import="com.voting.model.Candidate" %>
+<%@page import="com.voting.model.Voter" %>
+<%@page import="java.util.Map" %>
 
 <%
     User user = (User) session.getAttribute("user");
@@ -17,12 +22,33 @@
     ElectionDAO electionDAO = new ElectionDAO(conn);
     CandidateDAO candidateDAO = new CandidateDAO(conn);
     VoteDAO voteDAO = new VoteDAO(conn);
+    VoterDAO voterDAO = new VoterDAO(conn);
     
     // Get counts for dashboard
     int activeElections = electionDAO.getActiveElections().size();
     int totalCandidates = candidateDAO.getAllCandidates().size();
     int totalVotes = voteDAO.getTotalVotesCount();
+    
+    // Get all candidates and voters
+    List<Map<String, Object>> candidates = candidateDAO.getAllCandidatesWithUserDetails();
+    List<Voter> voters = voterDAO.getAllVoters();
+    
+    // Handle delete actions
+    if ("deleteCandidate".equals(request.getParameter("action"))) {
+        int candidateId = Integer.parseInt(request.getParameter("id"));
+        candidateDAO.deleteCandidate(candidateId);
+        response.sendRedirect(request.getContextPath() + "/admin/dashboard.jsp");
+        return;
+    }
+    
+    if ("deleteVoter".equals(request.getParameter("action"))) {
+        int voterId = Integer.parseInt(request.getParameter("id"));
+        voterDAO.deleteVoter(voterId);
+        response.sendRedirect(request.getContextPath() + "/admin/dashboard.jsp");
+        return;
+    }
 %>
+
 
 <!DOCTYPE html>
 <html>
@@ -36,6 +62,28 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/navbar-style.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/admin-dashboard-style.css">
+    <style>
+        .data-table {
+            margin-top: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        .data-table h4 {
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .table-responsive {
+            margin-top: 15px;
+        }
+        .action-btn {
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
     <jsp:include page="/navbar.jsp" />
@@ -124,7 +172,88 @@
                 </a>
             </div>
         </div>
-    </div>
+        
+        <!-- Voters Table -->
+		<div class="data-table">
+		    <h4><i class="fas fa-user-check"></i> Voters</h4>
+		    <div class="table-responsive">
+		        <table class="table table-striped table-hover">
+		            <thead class="thead-dark">
+		                <tr>
+		                    <th>ID</th>
+		                    <th>Voter ID</th>
+		                    <th>First Name</th>
+		                    <th>Last Name</th>
+		                    <th>Username</th>
+		                    <th>District</th>
+		                    <th>Actions</th>
+		                </tr>
+		            </thead>
+		            <tbody>
+		                <% for (Voter voter : voters) { %>
+		                <tr>
+		                    <td><%= voter.getVoterId() %></td>
+		                    <td><%= voter.getVoterIdNumber() %></td>
+		                    <td><%= voter.getFirstName() %></td>
+		                    <td><%= voter.getLastName() %></td>
+		                    <td><%= voter.getUsername() %></td>
+		                    <td><%= voter.getDistrict() %></td>
+		                    <td>
+		                        <form action="${pageContext.request.contextPath}/admin/dashboard.jsp" method="post" style="display: inline;">
+		                            <input type="hidden" name="action" value="deleteVoter">
+		                            <input type="hidden" name="id" value="<%= voter.getVoterId() %>">
+		                            <button type="submit" class="btn btn-danger btn-sm action-btn" 
+		                                    onclick="return confirm('Are you sure you want to delete this voter?')">
+		                                <i class="fas fa-trash-alt"></i> Delete
+		                            </button>
+		                        </form>
+		                    </td>
+		                </tr>
+		                <% } %>
+		            </tbody>
+		        </table>
+		    </div>
+		</div>
+		<!-- Candidates Table -->
+		<div class="data-table">
+		    <h4><i class="fas fa-user-tie"></i> Candidates</h4>
+		    <div class="table-responsive">
+		        <table class="table table-striped table-hover">
+		            <thead class="thead-dark">
+		                <tr>
+		                    <th>ID</th>
+		                    <th>Username</th>
+		                    <th>First Name</th>
+		                    <th>Last Name</th>
+		                    <th>Position</th>
+		                    <th>Actions</th>
+		                </tr>
+		            </thead>
+		            <tbody>
+		                <% for (Map<String, Object> candidate : candidates) { %>
+		                <tr>
+		                    <td><%= candidate.get("candidateId") %></td>
+		                    <td><%= candidate.get("username") %></td>
+		                    <td><%= candidate.get("firstName") %></td>
+		                    <td><%= candidate.get("lastName") %></td>
+		                    <td><%= candidate.get("position") %></td>
+		                    <td>
+		                        <form action="${pageContext.request.contextPath}/admin/dashboard.jsp" method="post" style="display: inline;">
+		                            <input type="hidden" name="action" value="deleteCandidate">
+		                            <input type="hidden" name="id" value="<%= candidate.get("candidateId") %>">
+		                            <button type="submit" class="btn btn-danger btn-sm action-btn" 
+		                                    onclick="return confirm('Are you sure you want to delete this candidate?')">
+		                                <i class="fas fa-trash-alt"></i> Delete
+		                            </button>
+		                        </form>
+		                    </td>
+		                </tr>
+		                <% } %>
+		            </tbody>
+		        </table>
+		    </div>
+		</div>
+	</div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
